@@ -17,12 +17,14 @@ import (
 func main() {
 	var (
 		_analyzers = map[string]analyzer.Analyzer{
-			(&analyzer.IsThereAZerg{}).Name():    &analyzer.IsThereAZerg{},
 			(&analyzer.MyAPM{}).Name():           &analyzer.MyAPM{},
 			(&analyzer.MyRace{}).Name():          &analyzer.MyRace{},
 			(&analyzer.DateTime{}).Name():        &analyzer.DateTime{},
 			(&analyzer.DurationMinutes{}).Name(): &analyzer.DurationMinutes{},
 			(&analyzer.MyName{}).Name():          &analyzer.MyName{},
+			(&analyzer.IsThereAZerg{}).Name():    &analyzer.IsThereAZerg{},
+			(&analyzer.IsThereATerran{}).Name():  &analyzer.IsThereATerran{},
+			(&analyzer.IsThereAProtoss{}).Name(): &analyzer.IsThereAProtoss{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")

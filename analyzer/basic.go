@@ -32,6 +32,58 @@ func (a *IsThereAZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContex
 }
 
 // -------------------------------------------------------------------------------------------------------------------
+type IsThereATerran struct {
+	done   bool
+	result string
+}
+
+func (a IsThereATerran) Name() string { return "is-there-a-terran" }
+func (a IsThereATerran) Description() string {
+	return "Analyzes if there is a terran player in the replay."
+}
+func (a IsThereATerran) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a IsThereATerran) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a IsThereATerran) Version() int                            { return 1 }
+func (a *IsThereATerran) SetArguments(args []string)             {}
+func (a *IsThereATerran) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *IsThereATerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = "false"
+	for _, p := range replay.Header.OrigPlayers {
+		if p.Race.ShortName == "ran" {
+			a.result = "true"
+		}
+	}
+	a.done = true
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type IsThereAProtoss struct {
+	done   bool
+	result string
+}
+
+func (a IsThereAProtoss) Name() string { return "is-there-a-protoss" }
+func (a IsThereAProtoss) Description() string {
+	return "Analyzes if there is a protoss player in the replay."
+}
+func (a IsThereAProtoss) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a IsThereAProtoss) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a IsThereAProtoss) Version() int                            { return 1 }
+func (a *IsThereAProtoss) SetArguments(args []string)             {}
+func (a *IsThereAProtoss) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *IsThereAProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = "false"
+	for _, p := range replay.Header.OrigPlayers {
+		if p.Race.ShortName == "toss" {
+			a.result = "true"
+		}
+	}
+	a.done = true
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
 type MyAPM struct {
 	done   bool
 	result string
