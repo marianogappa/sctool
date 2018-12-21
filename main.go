@@ -22,6 +22,7 @@ func main() {
 			(&analyzer.MyRace{}).Name():          &analyzer.MyRace{},
 			(&analyzer.DateTime{}).Name():        &analyzer.DateTime{},
 			(&analyzer.DurationMinutes{}).Name(): &analyzer.DurationMinutes{},
+			(&analyzer.MyName{}).Name():          &analyzer.MyName{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")

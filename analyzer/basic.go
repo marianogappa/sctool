@@ -80,8 +80,8 @@ func (a MyRace) Version() int                            { return 1 }
 func (a *MyRace) SetArguments(args []string)             {}
 func (a *MyRace) ProcessCommand(command repcmd.Cmd) bool { return true }
 func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = ""
 	if replay.Computed == nil {
-		a.result = ""
 		a.done = true
 		return true
 	}
@@ -132,5 +132,34 @@ func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) bool { return true 
 func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
 	a.result = fmt.Sprintf("%v", int(replay.Header.Duration().Minutes()))
 	a.done = true
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyName struct {
+	done   bool
+	result string
+}
+
+func (a MyName) Name() string                            { return "my-name" }
+func (a MyName) Description() string                     { return "Analyzes the name of the -me player." }
+func (a MyName) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyName) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyName) Version() int                            { return 1 }
+func (a *MyName) SetArguments(args []string)             {}
+func (a *MyName) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = ""
+	if replay.Computed == nil {
+		a.done = true
+		return true
+	}
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok {
+			a.result = p.Name
+			a.done = true
+			break
+		}
+	}
 	return a.done
 }
