@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/icza/screp/rep"
@@ -18,6 +19,7 @@ func main() {
 		_analyzers = map[string]analyzer.Analyzer{
 			(&analyzer.IsThereAZerg{}).Name(): &analyzer.IsThereAZerg{},
 			(&analyzer.MyAPM{}).Name():        &analyzer.MyAPM{},
+			(&analyzer.MyRace{}).Name():       &analyzer.MyRace{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")
@@ -41,6 +43,7 @@ func main() {
 	}
 
 	// Prepares for CSV output
+	sort.Strings(csvFieldNames)
 	w := csv.NewWriter(os.Stdout)
 	w.Write(csvFieldNames)
 

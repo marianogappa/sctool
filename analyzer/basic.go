@@ -65,3 +65,32 @@ func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool
 	}
 	return a.done
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyRace struct {
+	done   bool
+	result string
+}
+
+func (a MyRace) Name() string                            { return "my-race" }
+func (a MyRace) Description() string                     { return "Analyzes the race of the -me player." }
+func (a MyRace) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyRace) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyRace) Version() int                            { return 1 }
+func (a *MyRace) SetArguments(args []string)             {}
+func (a *MyRace) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	if replay.Computed == nil {
+		a.result = ""
+		a.done = true
+		return true
+	}
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok {
+			a.result = p.Race.Name
+			a.done = true
+			break
+		}
+	}
+	return a.done
+}
