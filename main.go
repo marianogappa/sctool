@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -34,6 +36,7 @@ func main() {
 		fReplays   = flag.String("replays", "", "comma-separated paths to replay files")
 		fReplayDir = flag.String("replay-dir", "", "path to folder with replays (recursive)")
 		fMe        = flag.String("me", "", "comma-separated list of player names to identify as the main player")
+		fJSON      = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
 	)
 	for name, a := range _analyzers {
 		flags[name] = flag.Bool(name, false, a.Description())
@@ -53,7 +56,15 @@ func main() {
 	// Prepares for CSV output
 	sort.Strings(csvFieldNames)
 	w := csv.NewWriter(os.Stdout)
-	w.Write(csvFieldNames)
+	if !*fJSON {
+		w.Write(csvFieldNames)
+	}
+
+	// Prepares for JSON output
+	firstJSONRow := true
+	if *fJSON {
+		fmt.Println("[")
+	}
 
 	// Prepares AnalyzerContext
 	ctx := analyzer.AnalyzerContext{Me: map[string]struct{}{}}
@@ -121,15 +132,32 @@ func main() {
 
 		}
 
-		csvRow := make([]string, 0, len(csvFieldNames))
-		for _, field := range csvFieldNames {
-			csvRow = append(csvRow, results[field].Value())
+		if *fJSON {
+			if !firstJSONRow {
+				fmt.Println(",")
+			}
+			firstJSONRow = false
+			row := map[string]string{}
+			for _, field := range csvFieldNames {
+				row[field] = results[field].Value()
+			}
+			bs, _ := json.Marshal(row)
+			fmt.Printf("%s", bs)
+		} else {
+			csvRow := make([]string, 0, len(csvFieldNames))
+			for _, field := range csvFieldNames {
+				csvRow = append(csvRow, results[field].Value())
+			}
+			w.Write(csvRow)
 		}
-		w.Write(csvRow)
 	}
 	w.Flush()
 	if err := w.Error(); err != nil {
 		log.Fatal(err)
+	}
+
+	if *fJSON {
+		fmt.Println("\n]")
 	}
 }
 
