@@ -148,6 +148,106 @@ func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) boo
 }
 
 // -------------------------------------------------------------------------------------------------------------------
+type MyRaceIsZerg struct {
+	done   bool
+	result string
+}
+
+func (a MyRaceIsZerg) Name() string                            { return "my-race-is-zerg" }
+func (a MyRaceIsZerg) Description() string                     { return "Analyzes if the race of the -me player is Zerg." }
+func (a MyRaceIsZerg) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyRaceIsZerg) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyRaceIsZerg) Version() int                            { return 1 }
+func (a *MyRaceIsZerg) SetArguments(args []string)             {}
+func (a *MyRaceIsZerg) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyRaceIsZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = ""
+	if replay.Computed == nil {
+		a.done = true
+		return true
+	}
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok {
+			a.result = "false"
+			if p.Race.Name == "Zerg" {
+				a.result = "true"
+			}
+			a.done = true
+			break
+		}
+	}
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyRaceIsTerran struct {
+	done   bool
+	result string
+}
+
+func (a MyRaceIsTerran) Name() string { return "my-race-is-terran" }
+func (a MyRaceIsTerran) Description() string {
+	return "Analyzes if the race of the -me player is Terran."
+}
+func (a MyRaceIsTerran) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyRaceIsTerran) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyRaceIsTerran) Version() int                            { return 1 }
+func (a *MyRaceIsTerran) SetArguments(args []string)             {}
+func (a *MyRaceIsTerran) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyRaceIsTerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = ""
+	if replay.Computed == nil {
+		a.done = true
+		return true
+	}
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok {
+			a.result = "false"
+			if p.Race.Name == "Terran" {
+				a.result = "true"
+			}
+			a.done = true
+			break
+		}
+	}
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyRaceIsProtoss struct {
+	done   bool
+	result string
+}
+
+func (a MyRaceIsProtoss) Name() string { return "my-race-is-protoss" }
+func (a MyRaceIsProtoss) Description() string {
+	return "Analyzes if the race of the -me player is Protoss."
+}
+func (a MyRaceIsProtoss) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyRaceIsProtoss) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyRaceIsProtoss) Version() int                            { return 1 }
+func (a *MyRaceIsProtoss) SetArguments(args []string)             {}
+func (a *MyRaceIsProtoss) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyRaceIsProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = ""
+	if replay.Computed == nil {
+		a.done = true
+		return true
+	}
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok {
+			a.result = "false"
+			if p.Race.Name == "Protoss" {
+				a.result = "true"
+			}
+			a.done = true
+			break
+		}
+	}
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
 type DateTime struct {
 	done   bool
 	result string

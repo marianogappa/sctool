@@ -25,6 +25,9 @@ func main() {
 			(&analyzer.IsThereAZerg{}).Name():    &analyzer.IsThereAZerg{},
 			(&analyzer.IsThereATerran{}).Name():  &analyzer.IsThereATerran{},
 			(&analyzer.IsThereAProtoss{}).Name(): &analyzer.IsThereAProtoss{},
+			(&analyzer.MyRaceIsZerg{}).Name():    &analyzer.MyRaceIsZerg{},
+			(&analyzer.MyRaceIsTerran{}).Name():  &analyzer.MyRaceIsTerran{},
+			(&analyzer.MyRaceIsProtoss{}).Name(): &analyzer.MyRaceIsProtoss{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")
