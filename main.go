@@ -15,11 +15,15 @@ import (
 
 func main() {
 	var (
-		_analyzers = map[string]analyzer.Analyzer{(&analyzer.IsThereAZerg{}).Name(): &analyzer.IsThereAZerg{}}
+		_analyzers = map[string]analyzer.Analyzer{
+			(&analyzer.IsThereAZerg{}).Name(): &analyzer.IsThereAZerg{},
+			(&analyzer.MyAPM{}).Name():        &analyzer.MyAPM{},
+		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")
 		fReplays   = flag.String("replays", "", "comma-separated paths to replay files")
 		fReplayDir = flag.String("replay-dir", "", "path to folder with replays (recursive)")
+		fMe        = flag.String("me", "", "comma-separated list of player names to identify as the main player")
 	)
 	for name, a := range _analyzers {
 		flags[name] = flag.Bool(name, false, a.Description())
@@ -36,8 +40,17 @@ func main() {
 		}
 	}
 
+	// Prepares for CSV output
 	w := csv.NewWriter(os.Stdout)
 	w.Write(csvFieldNames)
+
+	// Prepares AnalyzerContext
+	ctx := analyzer.AnalyzerContext{Me: map[string]struct{}{}}
+	if fMe != nil && len(*fMe) > 0 {
+		for _, name := range strings.Split(*fMe, ",") {
+			ctx.Me[strings.TrimSpace(name)] = struct{}{}
+		}
+	}
 
 	// Parse replay filename flags
 	var replays = map[string]struct{}{}
@@ -82,7 +95,7 @@ func main() {
 
 		var results = map[string]analyzer.Result{}
 		for name, a := range analyzerInstances {
-			if a.StartReadingReplay(r) {
+			if a.StartReadingReplay(r, ctx) {
 				results[name], _ = a.IsDone()
 				delete(analyzerInstances, name)
 			}
