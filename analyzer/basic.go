@@ -94,3 +94,43 @@ func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) boo
 	}
 	return a.done
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+type DateTime struct {
+	done   bool
+	result string
+}
+
+func (a DateTime) Name() string                            { return "date-time" }
+func (a DateTime) Description() string                     { return "Analyzes the datetime of the replay." }
+func (a DateTime) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a DateTime) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a DateTime) Version() int                            { return 1 }
+func (a *DateTime) SetArguments(args []string)             {}
+func (a *DateTime) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *DateTime) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = fmt.Sprintf("%v", replay.Header.StartTime)
+	a.done = true
+	return a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type DurationMinutes struct {
+	done   bool
+	result string
+}
+
+func (a DurationMinutes) Name() string { return "duration-minutes" }
+func (a DurationMinutes) Description() string {
+	return "Analyzes the duration of the replay in minutes."
+}
+func (a DurationMinutes) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a DurationMinutes) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a DurationMinutes) Version() int                            { return 1 }
+func (a *DurationMinutes) SetArguments(args []string)             {}
+func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool {
+	a.result = fmt.Sprintf("%v", int(replay.Header.Duration().Minutes()))
+	a.done = true
+	return a.done
+}
