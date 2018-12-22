@@ -37,9 +37,9 @@ func main() {
 			(&analyzer.MapName{}).Name():         &analyzer.MapName{},
 		}
 		flags      = map[string]*bool{}
-		fReplay    = flag.String("replay", "", "path to replay file")
-		fReplays   = flag.String("replays", "", "comma-separated paths to replay files")
-		fReplayDir = flag.String("replay-dir", "", "path to folder with replays (recursive)")
+		fReplay    = flag.String("replay", "", "(>= 1 replays required) path to replay file")
+		fReplays   = flag.String("replays", "", "(>= 1 replays required) comma-separated paths to replay files")
+		fReplayDir = flag.String("replay-dir", "", "(>= 1 replays required) path to folder with replays (recursive)")
 		fMe        = flag.String("me", "", "comma-separated list of player names to identify as the main player")
 		fJSON      = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
 	)
