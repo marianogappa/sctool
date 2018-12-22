@@ -73,6 +73,7 @@ func main() {
 		}
 	}
 
+	// TODO implement library for programmatic use
 	// Prepares for CSV output
 	sort.Strings(fieldNames)
 	w := csv.NewWriter(os.Stdout)
@@ -122,6 +123,7 @@ func main() {
 	}
 
 	// Main loop parsing replays
+	// TODO break if there are no Analyzers at the beginning or after an iteration
 	for replay := range replays {
 		analyzerInstances := make(map[string]analyzer.Analyzer, len(analyzers))
 		for n, a := range analyzers {
