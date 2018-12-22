@@ -353,3 +353,33 @@ func (a *ReplayPath) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext,
 	a.result = replayPath
 	return a.done
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyWin struct {
+	done   bool
+	result string
+}
+
+func (a MyWin) Name() string                            { return "my-win" }
+func (a MyWin) Description() string                     { return "Analyzes if the -me player won the game." }
+func (a MyWin) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MyWin) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MyWin) Version() int                            { return 1 }
+func (a *MyWin) SetArguments(args []string)             {}
+func (a *MyWin) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+	if replay.Computed == nil || replay.Computed.WinnerTeam == 0 {
+		a.result = "unknown"
+		a.done = true
+		return true
+	}
+	a.result = "false"
+	for _, p := range replay.Header.Players {
+		if _, ok := ctx.Me[p.Name]; ok && p.Team == replay.Computed.WinnerTeam {
+			a.result = "true"
+			break
+		}
+	}
+	a.done = true
+	return a.done
+}
