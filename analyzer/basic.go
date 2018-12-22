@@ -14,14 +14,15 @@ type IsThereAZerg struct {
 	result string
 }
 
-func (a IsThereAZerg) Name() string                            { return "is-there-a-zerg" }
-func (a IsThereAZerg) Description() string                     { return "Analyzes if there is a zerg player in the replay." }
-func (a IsThereAZerg) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a IsThereAZerg) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a IsThereAZerg) Version() int                            { return 1 }
-func (a *IsThereAZerg) SetArguments(args []string)             {}
-func (a *IsThereAZerg) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *IsThereAZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a IsThereAZerg) Name() string                                     { return "is-there-a-zerg" }
+func (a IsThereAZerg) Description() string                              { return "Analyzes if there is a zerg player in the replay." }
+func (a IsThereAZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a IsThereAZerg) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a IsThereAZerg) Version() int                                     { return 1 }
+func (a IsThereAZerg) IsStringFlag() bool                               { return false }
+func (a *IsThereAZerg) SetArguments(args []string) error                { return nil }
+func (a *IsThereAZerg) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *IsThereAZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.OrigPlayers {
 		if p.Race.ShortName == "zerg" {
@@ -29,7 +30,7 @@ func (a *IsThereAZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContex
 		}
 	}
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -42,12 +43,13 @@ func (a IsThereATerran) Name() string { return "is-there-a-terran" }
 func (a IsThereATerran) Description() string {
 	return "Analyzes if there is a terran player in the replay."
 }
-func (a IsThereATerran) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a IsThereATerran) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a IsThereATerran) Version() int                            { return 1 }
-func (a *IsThereATerran) SetArguments(args []string)             {}
-func (a *IsThereATerran) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *IsThereATerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a IsThereATerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a IsThereATerran) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a IsThereATerran) Version() int                                     { return 1 }
+func (a IsThereATerran) IsStringFlag() bool                               { return false }
+func (a *IsThereATerran) SetArguments(args []string) error                { return nil }
+func (a *IsThereATerran) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *IsThereATerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.OrigPlayers {
 		if p.Race.ShortName == "ran" {
@@ -55,7 +57,7 @@ func (a *IsThereATerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerCont
 		}
 	}
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -68,12 +70,13 @@ func (a IsThereAProtoss) Name() string { return "is-there-a-protoss" }
 func (a IsThereAProtoss) Description() string {
 	return "Analyzes if there is a protoss player in the replay."
 }
-func (a IsThereAProtoss) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a IsThereAProtoss) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a IsThereAProtoss) Version() int                            { return 1 }
-func (a *IsThereAProtoss) SetArguments(args []string)             {}
-func (a *IsThereAProtoss) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *IsThereAProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a IsThereAProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a IsThereAProtoss) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a IsThereAProtoss) Version() int                                     { return 1 }
+func (a IsThereAProtoss) IsStringFlag() bool                               { return false }
+func (a *IsThereAProtoss) SetArguments(args []string) error                { return nil }
+func (a *IsThereAProtoss) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *IsThereAProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.OrigPlayers {
 		if p.Race.ShortName == "toss" {
@@ -81,7 +84,7 @@ func (a *IsThereAProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerCon
 		}
 	}
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -90,18 +93,19 @@ type MyAPM struct {
 	result string
 }
 
-func (a MyAPM) Name() string                            { return "my-apm" }
-func (a MyAPM) Description() string                     { return "Analyzes the APM of the -me player." }
-func (a MyAPM) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyAPM) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyAPM) Version() int                            { return 1 }
-func (a *MyAPM) SetArguments(args []string)             {}
-func (a *MyAPM) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyAPM) Name() string                                     { return "my-apm" }
+func (a MyAPM) Description() string                              { return "Analyzes the APM of the -me player." }
+func (a MyAPM) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyAPM) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyAPM) Version() int                                     { return 1 }
+func (a MyAPM) IsStringFlag() bool                               { return false }
+func (a *MyAPM) SetArguments(args []string) error                { return nil }
+func (a *MyAPM) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	if replay.Computed == nil {
 		a.result = "-1"
 		a.done = true
-		return true
+		return nil, true
 	}
 	var playerID byte
 	for _, p := range replay.Header.Players {
@@ -116,7 +120,7 @@ func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, repl
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -125,18 +129,19 @@ type MyRace struct {
 	result string
 }
 
-func (a MyRace) Name() string                            { return "my-race" }
-func (a MyRace) Description() string                     { return "Analyzes the race of the -me player." }
-func (a MyRace) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyRace) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyRace) Version() int                            { return 1 }
-func (a *MyRace) SetArguments(args []string)             {}
-func (a *MyRace) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyRace) Name() string                                     { return "my-race" }
+func (a MyRace) Description() string                              { return "Analyzes the race of the -me player." }
+func (a MyRace) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyRace) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRace) Version() int                                     { return 1 }
+func (a MyRace) IsStringFlag() bool                               { return false }
+func (a *MyRace) SetArguments(args []string) error                { return nil }
+func (a *MyRace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
 	if replay.Computed == nil {
 		a.done = true
-		return true
+		return nil, true
 	}
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -145,7 +150,7 @@ func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, rep
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -154,18 +159,19 @@ type MyRaceIsZerg struct {
 	result string
 }
 
-func (a MyRaceIsZerg) Name() string                            { return "my-race-is-zerg" }
-func (a MyRaceIsZerg) Description() string                     { return "Analyzes if the race of the -me player is Zerg." }
-func (a MyRaceIsZerg) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyRaceIsZerg) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyRaceIsZerg) Version() int                            { return 1 }
-func (a *MyRaceIsZerg) SetArguments(args []string)             {}
-func (a *MyRaceIsZerg) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyRaceIsZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyRaceIsZerg) Name() string                                     { return "my-race-is-zerg" }
+func (a MyRaceIsZerg) Description() string                              { return "Analyzes if the race of the -me player is Zerg." }
+func (a MyRaceIsZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyRaceIsZerg) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsZerg) Version() int                                     { return 1 }
+func (a MyRaceIsZerg) IsStringFlag() bool                               { return false }
+func (a *MyRaceIsZerg) SetArguments(args []string) error                { return nil }
+func (a *MyRaceIsZerg) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyRaceIsZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
 	if replay.Computed == nil {
 		a.done = true
-		return true
+		return nil, true
 	}
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -177,7 +183,7 @@ func (a *MyRaceIsZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContex
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -190,16 +196,17 @@ func (a MyRaceIsTerran) Name() string { return "my-race-is-terran" }
 func (a MyRaceIsTerran) Description() string {
 	return "Analyzes if the race of the -me player is Terran."
 }
-func (a MyRaceIsTerran) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyRaceIsTerran) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyRaceIsTerran) Version() int                            { return 1 }
-func (a *MyRaceIsTerran) SetArguments(args []string)             {}
-func (a *MyRaceIsTerran) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyRaceIsTerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyRaceIsTerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyRaceIsTerran) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsTerran) Version() int                                     { return 1 }
+func (a MyRaceIsTerran) IsStringFlag() bool                               { return false }
+func (a *MyRaceIsTerran) SetArguments(args []string) error                { return nil }
+func (a *MyRaceIsTerran) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyRaceIsTerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
 	if replay.Computed == nil {
 		a.done = true
-		return true
+		return nil, true
 	}
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -211,7 +218,7 @@ func (a *MyRaceIsTerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerCont
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -224,16 +231,17 @@ func (a MyRaceIsProtoss) Name() string { return "my-race-is-protoss" }
 func (a MyRaceIsProtoss) Description() string {
 	return "Analyzes if the race of the -me player is Protoss."
 }
-func (a MyRaceIsProtoss) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyRaceIsProtoss) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyRaceIsProtoss) Version() int                            { return 1 }
-func (a *MyRaceIsProtoss) SetArguments(args []string)             {}
-func (a *MyRaceIsProtoss) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyRaceIsProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyRaceIsProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyRaceIsProtoss) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsProtoss) Version() int                                     { return 1 }
+func (a MyRaceIsProtoss) IsStringFlag() bool                               { return false }
+func (a *MyRaceIsProtoss) SetArguments(args []string) error                { return nil }
+func (a *MyRaceIsProtoss) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyRaceIsProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
 	if replay.Computed == nil {
 		a.done = true
-		return true
+		return nil, true
 	}
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -245,7 +253,7 @@ func (a *MyRaceIsProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerCon
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -254,17 +262,18 @@ type DateTime struct {
 	result string
 }
 
-func (a DateTime) Name() string                            { return "date-time" }
-func (a DateTime) Description() string                     { return "Analyzes the datetime of the replay." }
-func (a DateTime) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a DateTime) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a DateTime) Version() int                            { return 1 }
-func (a *DateTime) SetArguments(args []string)             {}
-func (a *DateTime) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *DateTime) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a DateTime) Name() string                                     { return "date-time" }
+func (a DateTime) Description() string                              { return "Analyzes the datetime of the replay." }
+func (a DateTime) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a DateTime) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a DateTime) Version() int                                     { return 1 }
+func (a DateTime) IsStringFlag() bool                               { return false }
+func (a *DateTime) SetArguments(args []string) error                { return nil }
+func (a *DateTime) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *DateTime) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = fmt.Sprintf("%v", replay.Header.StartTime)
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -277,15 +286,16 @@ func (a DurationMinutes) Name() string { return "duration-minutes" }
 func (a DurationMinutes) Description() string {
 	return "Analyzes the duration of the replay in minutes."
 }
-func (a DurationMinutes) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a DurationMinutes) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a DurationMinutes) Version() int                            { return 1 }
-func (a *DurationMinutes) SetArguments(args []string)             {}
-func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a DurationMinutes) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a DurationMinutes) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a DurationMinutes) Version() int                                     { return 1 }
+func (a DurationMinutes) IsStringFlag() bool                               { return false }
+func (a *DurationMinutes) SetArguments(args []string) error                { return nil }
+func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = fmt.Sprintf("%v", int(replay.Header.Duration().Minutes()))
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -294,18 +304,19 @@ type MyName struct {
 	result string
 }
 
-func (a MyName) Name() string                            { return "my-name" }
-func (a MyName) Description() string                     { return "Analyzes the name of the -me player." }
-func (a MyName) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyName) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyName) Version() int                            { return 1 }
-func (a *MyName) SetArguments(args []string)             {}
-func (a *MyName) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyName) Name() string                                     { return "my-name" }
+func (a MyName) Description() string                              { return "Analyzes the name of the -me player." }
+func (a MyName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyName) Version() int                                     { return 1 }
+func (a MyName) IsStringFlag() bool                               { return false }
+func (a *MyName) SetArguments(args []string) error                { return nil }
+func (a *MyName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
 	if replay.Computed == nil {
 		a.done = true
-		return true
+		return nil, true
 	}
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -314,7 +325,7 @@ func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, rep
 			break
 		}
 	}
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -323,17 +334,18 @@ type ReplayName struct {
 	result string
 }
 
-func (a ReplayName) Name() string                            { return "replay-name" }
-func (a ReplayName) Description() string                     { return "Analyzes the replay's name." }
-func (a ReplayName) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a ReplayName) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a ReplayName) Version() int                            { return 1 }
-func (a *ReplayName) SetArguments(args []string)             {}
-func (a *ReplayName) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *ReplayName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a ReplayName) Name() string                                     { return "replay-name" }
+func (a ReplayName) Description() string                              { return "Analyzes the replay's name." }
+func (a ReplayName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a ReplayName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a ReplayName) Version() int                                     { return 1 }
+func (a ReplayName) IsStringFlag() bool                               { return false }
+func (a *ReplayName) SetArguments(args []string) error                { return nil }
+func (a *ReplayName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *ReplayName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = path.Base(replayPath)
 	a.result = a.result[:len(a.result)-4]
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -342,16 +354,17 @@ type ReplayPath struct {
 	result string
 }
 
-func (a ReplayPath) Name() string                            { return "replay-path" }
-func (a ReplayPath) Description() string                     { return "Analyzes the replay's path." }
-func (a ReplayPath) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a ReplayPath) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a ReplayPath) Version() int                            { return 1 }
-func (a *ReplayPath) SetArguments(args []string)             {}
-func (a *ReplayPath) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *ReplayPath) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a ReplayPath) Name() string                                     { return "replay-path" }
+func (a ReplayPath) Description() string                              { return "Analyzes the replay's path." }
+func (a ReplayPath) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a ReplayPath) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a ReplayPath) Version() int                                     { return 1 }
+func (a ReplayPath) IsStringFlag() bool                               { return false }
+func (a *ReplayPath) SetArguments(args []string) error                { return nil }
+func (a *ReplayPath) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *ReplayPath) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = replayPath
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -360,18 +373,19 @@ type MyWin struct {
 	result string
 }
 
-func (a MyWin) Name() string                            { return "my-win" }
-func (a MyWin) Description() string                     { return "Analyzes if the -me player won the game." }
-func (a MyWin) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyWin) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyWin) Version() int                            { return 1 }
-func (a *MyWin) SetArguments(args []string)             {}
-func (a *MyWin) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyWin) Name() string                                     { return "my-win" }
+func (a MyWin) Description() string                              { return "Analyzes if the -me player won the game." }
+func (a MyWin) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyWin) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyWin) Version() int                                     { return 1 }
+func (a MyWin) IsStringFlag() bool                               { return false }
+func (a *MyWin) SetArguments(args []string) error                { return nil }
+func (a *MyWin) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	if replay.Computed == nil || replay.Computed.WinnerTeam == 0 {
 		a.result = "unknown"
 		a.done = true
-		return true
+		return nil, true
 	}
 	a.result = "false"
 	for _, p := range replay.Header.Players {
@@ -381,7 +395,7 @@ func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, repl
 		}
 	}
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -390,14 +404,15 @@ type MyGame struct {
 	result string
 }
 
-func (a MyGame) Name() string                            { return "my-game" }
-func (a MyGame) Description() string                     { return "Analyzes if the -me player played the game." }
-func (a MyGame) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MyGame) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MyGame) Version() int                            { return 1 }
-func (a *MyGame) SetArguments(args []string)             {}
-func (a *MyGame) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MyGame) Name() string                                     { return "my-game" }
+func (a MyGame) Description() string                              { return "Analyzes if the -me player played the game." }
+func (a MyGame) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyGame) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyGame) Version() int                                     { return 1 }
+func (a MyGame) IsStringFlag() bool                               { return false }
+func (a *MyGame) SetArguments(args []string) error                { return nil }
+func (a *MyGame) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.Players {
 		if _, ok := ctx.Me[p.Name]; ok {
@@ -406,7 +421,7 @@ func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, rep
 		}
 	}
 	a.done = true
-	return a.done
+	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -415,15 +430,16 @@ type MapName struct {
 	result string
 }
 
-func (a MapName) Name() string                            { return "map-name" }
-func (a MapName) Description() string                     { return "Analyzes the map's name." }
-func (a MapName) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
-func (a MapName) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
-func (a MapName) Version() int                            { return 1 }
-func (a *MapName) SetArguments(args []string)             {}
-func (a *MapName) ProcessCommand(command repcmd.Cmd) bool { return true }
-func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+func (a MapName) Name() string                                     { return "map-name" }
+func (a MapName) Description() string                              { return "Analyzes the map's name." }
+func (a MapName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MapName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MapName) Version() int                                     { return 1 }
+func (a MapName) IsStringFlag() bool                               { return false }
+func (a *MapName) SetArguments(args []string) error                { return nil }
+func (a *MapName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = replay.Header.Map
 	a.done = true
-	return a.done
+	return nil, a.done
 }

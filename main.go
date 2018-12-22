@@ -19,51 +19,67 @@ import (
 func main() {
 	var (
 		_analyzers = map[string]analyzer.Analyzer{
-			(&analyzer.MyAPM{}).Name():                 &analyzer.MyAPM{},
-			(&analyzer.MyRace{}).Name():                &analyzer.MyRace{},
-			(&analyzer.DateTime{}).Name():              &analyzer.DateTime{},
-			(&analyzer.DurationMinutes{}).Name():       &analyzer.DurationMinutes{},
-			(&analyzer.MyName{}).Name():                &analyzer.MyName{},
-			(&analyzer.IsThereAZerg{}).Name():          &analyzer.IsThereAZerg{},
-			(&analyzer.IsThereATerran{}).Name():        &analyzer.IsThereATerran{},
-			(&analyzer.IsThereAProtoss{}).Name():       &analyzer.IsThereAProtoss{},
-			(&analyzer.MyRaceIsZerg{}).Name():          &analyzer.MyRaceIsZerg{},
-			(&analyzer.MyRaceIsTerran{}).Name():        &analyzer.MyRaceIsTerran{},
-			(&analyzer.MyRaceIsProtoss{}).Name():       &analyzer.MyRaceIsProtoss{},
-			(&analyzer.ReplayName{}).Name():            &analyzer.ReplayName{},
-			(&analyzer.ReplayPath{}).Name():            &analyzer.ReplayPath{},
-			(&analyzer.MyWin{}).Name():                 &analyzer.MyWin{},
-			(&analyzer.MyGame{}).Name():                &analyzer.MyGame{},
-			(&analyzer.MapName{}).Name():               &analyzer.MapName{},
-			(&analyzer.MySpawningPoolSeconds{}).Name(): &analyzer.MySpawningPoolSeconds{},
+			(&analyzer.MyAPM{}).Name():                      &analyzer.MyAPM{},
+			(&analyzer.MyRace{}).Name():                     &analyzer.MyRace{},
+			(&analyzer.DateTime{}).Name():                   &analyzer.DateTime{},
+			(&analyzer.DurationMinutes{}).Name():            &analyzer.DurationMinutes{},
+			(&analyzer.MyName{}).Name():                     &analyzer.MyName{},
+			(&analyzer.IsThereAZerg{}).Name():               &analyzer.IsThereAZerg{},
+			(&analyzer.IsThereATerran{}).Name():             &analyzer.IsThereATerran{},
+			(&analyzer.IsThereAProtoss{}).Name():            &analyzer.IsThereAProtoss{},
+			(&analyzer.MyRaceIsZerg{}).Name():               &analyzer.MyRaceIsZerg{},
+			(&analyzer.MyRaceIsTerran{}).Name():             &analyzer.MyRaceIsTerran{},
+			(&analyzer.MyRaceIsProtoss{}).Name():            &analyzer.MyRaceIsProtoss{},
+			(&analyzer.ReplayName{}).Name():                 &analyzer.ReplayName{},
+			(&analyzer.ReplayPath{}).Name():                 &analyzer.ReplayPath{},
+			(&analyzer.MyWin{}).Name():                      &analyzer.MyWin{},
+			(&analyzer.MyGame{}).Name():                     &analyzer.MyGame{},
+			(&analyzer.MapName{}).Name():                    &analyzer.MapName{},
+			(&analyzer.MyFirstSpecificUnitSeconds{}).Name(): &analyzer.MyFirstSpecificUnitSeconds{},
 		}
-		flags      = map[string]*bool{}
-		fReplay    = flag.String("replay", "", "(>= 1 replays required) path to replay file")
-		fReplays   = flag.String("replays", "", "(>= 1 replays required) comma-separated paths to replay files")
-		fReplayDir = flag.String("replay-dir", "", "(>= 1 replays required) path to folder with replays (recursive)")
-		fMe        = flag.String("me", "", "comma-separated list of player names to identify as the main player")
-		fJSON      = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
+		boolFlags   = map[string]*bool{}
+		stringFlags = map[string]*string{}
+		fReplay     = flag.String("replay", "", "(>= 1 replays required) path to replay file")
+		fReplays    = flag.String("replays", "", "(>= 1 replays required) comma-separated paths to replay files")
+		fReplayDir  = flag.String("replay-dir", "", "(>= 1 replays required) path to folder with replays (recursive)")
+		fMe         = flag.String("me", "", "comma-separated list of player names to identify as the main player")
+		fJSON       = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
 	)
 	for name, a := range _analyzers {
-		flags[name] = flag.Bool(name, false, a.Description())
+		if a.IsStringFlag() {
+			stringFlags[name] = flag.String(name, "", a.Description())
+		} else {
+			boolFlags[name] = flag.Bool(name, false, a.Description())
+		}
 	}
 	flag.Parse()
 	var (
-		analyzers     = map[string]analyzer.Analyzer{}
-		csvFieldNames = []string{} // TODO add filename
+		analyzers  = map[string]analyzer.Analyzer{}
+		fieldNames = []string{} // TODO add filename
 	)
-	for name, f := range flags {
+	for name, f := range boolFlags {
 		if *f {
 			analyzers[name] = _analyzers[name]
-			csvFieldNames = append(csvFieldNames, name)
+			fieldNames = append(fieldNames, name)
+		}
+	}
+	for name, f := range stringFlags {
+		if *f != "" {
+			a := _analyzers[name]
+			if err := a.SetArguments(unmarshalArguments(*f)); err != nil {
+				log.Printf("Invalid arguments '%v' for Analyzer %v: %v", *f, name, err)
+				continue
+			}
+			analyzers[name] = _analyzers[name]
+			fieldNames = append(fieldNames, name)
 		}
 	}
 
 	// Prepares for CSV output
-	sort.Strings(csvFieldNames)
+	sort.Strings(fieldNames)
 	w := csv.NewWriter(os.Stdout)
 	if !*fJSON {
-		w.Write(csvFieldNames)
+		w.Write(fieldNames)
 	}
 
 	// Prepares for JSON output
@@ -123,19 +139,30 @@ func main() {
 
 		var results = map[string]analyzer.Result{}
 		for name, a := range analyzerInstances {
-			if a.StartReadingReplay(r, ctx, replay) {
+			err, done := a.StartReadingReplay(r, ctx, replay)
+			if err != nil {
+				log.Printf("Error beginning to read replay %v with Analyzer %v: %v\n", replay, a.Name(), err)
+			}
+			if done {
 				results[name], _ = a.IsDone()
+			}
+			if done || err != nil {
 				delete(analyzerInstances, name)
 			}
 		}
 		for _, c := range r.Commands.Cmds {
 			for name, a := range analyzerInstances {
-				if a.ProcessCommand(c) {
+				err, done := a.ProcessCommand(c)
+				if err != nil {
+					log.Printf("Error reading command on replay %v with Analyzer %v: %v\n", replay, a.Name(), err)
+				}
+				if done {
 					results[name], _ = a.IsDone()
+				}
+				if done || err != nil {
 					delete(analyzerInstances, name)
 				}
 			}
-
 		}
 
 		if *fJSON {
@@ -144,14 +171,14 @@ func main() {
 			}
 			firstJSONRow = false
 			row := map[string]string{}
-			for _, field := range csvFieldNames {
+			for _, field := range fieldNames {
 				row[field] = results[field].Value()
 			}
 			bs, _ := json.Marshal(row)
 			fmt.Printf("%s", bs)
 		} else {
-			csvRow := make([]string, 0, len(csvFieldNames))
-			for _, field := range csvFieldNames {
+			csvRow := make([]string, 0, len(fieldNames))
+			for _, field := range fieldNames {
 				if results[field] == nil {
 					csvRow = append(csvRow, "")
 					continue
@@ -178,4 +205,15 @@ func tryCompute(r *rep.Replay) {
 		}
 	}()
 	r.Compute()
+}
+
+func unmarshalArguments(s string) []string {
+	ss := []string{}
+	for _, _si := range strings.Split(s, ",") {
+		si := strings.TrimSpace(_si)
+		if si != "" {
+			ss = append(ss, si)
+		}
+	}
+	return ss
 }

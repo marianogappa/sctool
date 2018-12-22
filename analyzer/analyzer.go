@@ -19,7 +19,9 @@ type Analyzer interface {
 	Description() string
 
 	// Arguments for running: should be called before StartReadingReplay().
-	SetArguments(args []string)
+	// It may error, signaling that this Analyzer should not be used, and an error
+	// should be shown to the client, but execution of the rest may continue.
+	SetArguments(args []string) error
 
 	// Analyzer Name's whose Results this Analyzer depends on: for building DAG.
 	DependsOn() map[string]struct{}
@@ -28,14 +30,18 @@ type Analyzer interface {
 	// Should be called before any ProcessCommand and only if IsDone is false.
 	// Returns true if the analyzer is finished calculating the result (i.e. no need
 	// to process commands)
-	StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool
+	// It may error, signaling that this Analyzer should no longer be used, and an error
+	// should be shown to the client, but execution of the rest may continue.
+	StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool)
 
 	// Should be called for every command during a Replay analizing cycle.
 	// StartReadingReplay should be called before processing any command, to refresh
 	// any state and to decide if processing commands are necessary to determine result.
 	// Returns true if the analyzer is finished calculating the result (i.e. no need
-	// to process further commands)
-	ProcessCommand(command repcmd.Cmd) bool
+	// to process further commands).
+	// It may error, signaling that this Analyzer should no longer be used, and an error
+	// should be shown to the client, but execution of the rest may continue.
+	ProcessCommand(command repcmd.Cmd) (error, bool)
 
 	// Returns true if the analyzer is finished calculating the result, and
 	// returns it. Shouldn't be called before calling StartReadingReplay.
@@ -45,6 +51,9 @@ type Analyzer interface {
 	// analyzer, the Version should be numerically higher. Then, if there's a cached
 	// Result of an Analyzer on a Replay, the result should be recomputed.
 	Version() int
+
+	// Determines the type of the CLI flag. It can either be Bool (default) or String.
+	IsStringFlag() bool
 }
 
 // Result of an Analyzer
