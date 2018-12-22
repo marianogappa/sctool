@@ -76,15 +76,20 @@ func main() {
 	}
 	for name, f := range boolFlags {
 		if *f {
+			addToFieldNames := true
 			if strings.HasPrefix(name, "filter--") {
 				name = name[len("filter--"):] // side-effect so that the analyzer runs
 				filters[name] = struct{}{}
+				addToFieldNames = false
 			} else if strings.HasPrefix(name, "filter-not--") {
 				name = name[len("filter-not--"):] // side-effect so that the analyzer runs
 				filterNots[name[len("filter-not--"):]] = struct{}{}
+				addToFieldNames = false
 			}
 			analyzers[name] = _analyzers[name]
-			fieldNames = append(fieldNames, name)
+			if addToFieldNames {
+				fieldNames = append(fieldNames, name)
+			}
 		}
 	}
 	for name, f := range stringFlags {
