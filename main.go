@@ -77,13 +77,14 @@ func main() {
 	for name, f := range boolFlags {
 		if *f {
 			if strings.HasPrefix(name, "filter--") {
-				filters[name[len("filter--"):]] = struct{}{}
+				name = name[len("filter--"):] // side-effect so that the analyzer runs
+				filters[name] = struct{}{}
 			} else if strings.HasPrefix(name, "filter-not--") {
+				name = name[len("filter-not--"):] // side-effect so that the analyzer runs
 				filterNots[name[len("filter-not--"):]] = struct{}{}
-			} else {
-				analyzers[name] = _analyzers[name]
-				fieldNames = append(fieldNames, name)
 			}
+			analyzers[name] = _analyzers[name]
+			fieldNames = append(fieldNames, name)
 		}
 	}
 	for name, f := range stringFlags {
