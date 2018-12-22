@@ -54,6 +54,9 @@ type Analyzer interface {
 
 	// Determines the type of the CLI flag. It can either be Bool (default) or String.
 	IsStringFlag() bool
+
+	// Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not-- flags.
+	IsBooleanResult() bool
 }
 
 // Result of an Analyzer

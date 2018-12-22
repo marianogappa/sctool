@@ -22,6 +22,7 @@ func (a MyFirstSpecificUnitSeconds) Description() string {
 func (a MyFirstSpecificUnitSeconds) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a MyFirstSpecificUnitSeconds) IsDone() (Result, bool)         { return stringResult{a.result}, a.done }
 func (a MyFirstSpecificUnitSeconds) Version() int                   { return 1 }
+func (a MyFirstSpecificUnitSeconds) IsBooleanResult() bool          { return false }
 func (a MyFirstSpecificUnitSeconds) IsStringFlag() bool             { return true }
 func (a *MyFirstSpecificUnitSeconds) SetArguments(args []string) error {
 	if len(args) < 1 {

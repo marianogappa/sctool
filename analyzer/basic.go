@@ -23,6 +23,7 @@ func (a IsThereARace) Description() string {
 func (a IsThereARace) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a IsThereARace) IsDone() (Result, bool)         { return stringResult{a.result}, a.done }
 func (a IsThereARace) Version() int                   { return 1 }
+func (a IsThereARace) IsBooleanResult() bool          { return true }
 func (a IsThereARace) IsStringFlag() bool             { return true }
 func (a *IsThereARace) SetArguments(args []string) error {
 	if len(args) < 1 {
@@ -58,6 +59,7 @@ func (a MyAPM) Description() string                              { return "Analy
 func (a MyAPM) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyAPM) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyAPM) Version() int                                     { return 1 }
+func (a MyAPM) IsBooleanResult() bool                            { return false }
 func (a MyAPM) IsStringFlag() bool                               { return false }
 func (a *MyAPM) SetArguments(args []string) error                { return nil }
 func (a *MyAPM) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -94,6 +96,7 @@ func (a MyRace) Description() string                              { return "Anal
 func (a MyRace) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyRace) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyRace) Version() int                                     { return 1 }
+func (a MyRace) IsBooleanResult() bool                            { return false }
 func (a MyRace) IsStringFlag() bool                               { return false }
 func (a *MyRace) SetArguments(args []string) error                { return nil }
 func (a *MyRace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -124,6 +127,7 @@ func (a MyRaceIsZerg) Description() string                              { return
 func (a MyRaceIsZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyRaceIsZerg) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyRaceIsZerg) Version() int                                     { return 1 }
+func (a MyRaceIsZerg) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsZerg) IsStringFlag() bool                               { return false }
 func (a *MyRaceIsZerg) SetArguments(args []string) error                { return nil }
 func (a *MyRaceIsZerg) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -159,6 +163,7 @@ func (a MyRaceIsTerran) Description() string {
 func (a MyRaceIsTerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyRaceIsTerran) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyRaceIsTerran) Version() int                                     { return 1 }
+func (a MyRaceIsTerran) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsTerran) IsStringFlag() bool                               { return false }
 func (a *MyRaceIsTerran) SetArguments(args []string) error                { return nil }
 func (a *MyRaceIsTerran) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -194,6 +199,7 @@ func (a MyRaceIsProtoss) Description() string {
 func (a MyRaceIsProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyRaceIsProtoss) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyRaceIsProtoss) Version() int                                     { return 1 }
+func (a MyRaceIsProtoss) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsProtoss) IsStringFlag() bool                               { return false }
 func (a *MyRaceIsProtoss) SetArguments(args []string) error                { return nil }
 func (a *MyRaceIsProtoss) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -227,6 +233,7 @@ func (a DateTime) Description() string                              { return "An
 func (a DateTime) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a DateTime) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a DateTime) Version() int                                     { return 1 }
+func (a DateTime) IsBooleanResult() bool                            { return false }
 func (a DateTime) IsStringFlag() bool                               { return false }
 func (a *DateTime) SetArguments(args []string) error                { return nil }
 func (a *DateTime) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -249,6 +256,7 @@ func (a DurationMinutes) Description() string {
 func (a DurationMinutes) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a DurationMinutes) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a DurationMinutes) Version() int                                     { return 1 }
+func (a DurationMinutes) IsBooleanResult() bool                            { return false }
 func (a DurationMinutes) IsStringFlag() bool                               { return false }
 func (a *DurationMinutes) SetArguments(args []string) error                { return nil }
 func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -269,6 +277,7 @@ func (a MyName) Description() string                              { return "Anal
 func (a MyName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyName) Version() int                                     { return 1 }
+func (a MyName) IsBooleanResult() bool                            { return false }
 func (a MyName) IsStringFlag() bool                               { return false }
 func (a *MyName) SetArguments(args []string) error                { return nil }
 func (a *MyName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -299,6 +308,7 @@ func (a ReplayName) Description() string                              { return "
 func (a ReplayName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a ReplayName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a ReplayName) Version() int                                     { return 1 }
+func (a ReplayName) IsBooleanResult() bool                            { return false }
 func (a ReplayName) IsStringFlag() bool                               { return false }
 func (a *ReplayName) SetArguments(args []string) error                { return nil }
 func (a *ReplayName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -319,6 +329,7 @@ func (a ReplayPath) Description() string                              { return "
 func (a ReplayPath) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a ReplayPath) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a ReplayPath) Version() int                                     { return 1 }
+func (a ReplayPath) IsBooleanResult() bool                            { return false }
 func (a ReplayPath) IsStringFlag() bool                               { return false }
 func (a *ReplayPath) SetArguments(args []string) error                { return nil }
 func (a *ReplayPath) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -338,6 +349,7 @@ func (a MyWin) Description() string                              { return "Analy
 func (a MyWin) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyWin) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyWin) Version() int                                     { return 1 }
+func (a MyWin) IsBooleanResult() bool                            { return true }
 func (a MyWin) IsStringFlag() bool                               { return false }
 func (a *MyWin) SetArguments(args []string) error                { return nil }
 func (a *MyWin) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -369,6 +381,7 @@ func (a MyGame) Description() string                              { return "Anal
 func (a MyGame) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyGame) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MyGame) Version() int                                     { return 1 }
+func (a MyGame) IsBooleanResult() bool                            { return true }
 func (a MyGame) IsStringFlag() bool                               { return false }
 func (a *MyGame) SetArguments(args []string) error                { return nil }
 func (a *MyGame) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
@@ -395,6 +408,7 @@ func (a MapName) Description() string                              { return "Ana
 func (a MapName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MapName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
 func (a MapName) Version() int                                     { return 1 }
+func (a MapName) IsBooleanResult() bool                            { return false }
 func (a MapName) IsStringFlag() bool                               { return false }
 func (a *MapName) SetArguments(args []string) error                { return nil }
 func (a *MapName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
