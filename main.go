@@ -49,16 +49,28 @@ func main() {
 		} else {
 			boolFlags[name] = flag.Bool(name, false, a.Description())
 		}
+		if a.IsBooleanResult() {
+			boolFlags["filter--"+name] = flag.Bool("filter--"+name, false, "Filter for: "+a.Description())
+			boolFlags["filter-not--"+name] = flag.Bool("filter-not--"+name, false, "Filter-Not for: "+a.Description())
+		}
 	}
 	flag.Parse()
 	var (
 		analyzers  = map[string]analyzer.Analyzer{}
+		filters    = map[string]struct{}{}
+		filterNots = map[string]struct{}{}
 		fieldNames = []string{} // TODO add filename
 	)
 	for name, f := range boolFlags {
 		if *f {
-			analyzers[name] = _analyzers[name]
-			fieldNames = append(fieldNames, name)
+			if strings.HasPrefix(name, "filter--") {
+				filters[name[len("filter--"):]] = struct{}{}
+			} else if strings.HasPrefix(name, "filter-not--") {
+				filterNots[name[len("filter-not--"):]] = struct{}{}
+			} else {
+				analyzers[name] = _analyzers[name]
+				fieldNames = append(fieldNames, name)
+			}
 		}
 	}
 	for name, f := range stringFlags {
@@ -137,7 +149,7 @@ func main() {
 		}
 		tryCompute(r)
 
-		var results = map[string]analyzer.Result{}
+		var results = map[string]string{}
 		for name, a := range analyzerInstances {
 			err, done := a.StartReadingReplay(r, ctx, replay)
 			if err != nil {
@@ -150,7 +162,10 @@ func main() {
 				delete(analyzerInstances, name)
 			}
 		}
-		for _, c := range r.Commands.Cmds {
+		for _, c := range r.Commands.Cmds { // N.B. This is the expensive loop in the algorithm; optimize here!
+			if len(analyzerInstances) == 0 {
+				break // Optimization: don't loop over commands if there's nothing to do!
+			}
 			for name, a := range analyzerInstances {
 				err, done := a.ProcessCommand(c)
 				if err != nil {
@@ -159,33 +174,46 @@ func main() {
 				if done {
 					results[name], _ = a.IsDone()
 				}
-				if done || err != nil {
+				if done || err != nil { // Optimization: delete Analyzers that finished or errored out
 					delete(analyzerInstances, name)
 				}
 			}
 		}
 
-		if *fJSON {
-			if !firstJSONRow {
-				fmt.Println(",")
+		// Decides if this replay should be output based on filter flags
+		shouldShowBasedOnFilterNots := true
+		for filterNot := range filterNots {
+			if res, ok := results[filterNot]; ok && res == "true" {
+				shouldShowBasedOnFilterNots = false
 			}
-			firstJSONRow = false
-			row := map[string]string{}
-			for _, field := range fieldNames {
-				row[field] = results[field].Value()
+		}
+		shouldShowBasedOnFilters := true
+		for filter := range filters {
+			if res, ok := results[filter]; !ok || res != "true" {
+				shouldShowBasedOnFilters = false
 			}
-			bs, _ := json.Marshal(row)
-			fmt.Printf("%s", bs)
-		} else {
-			csvRow := make([]string, 0, len(fieldNames))
-			for _, field := range fieldNames {
-				if results[field] == nil {
-					csvRow = append(csvRow, "")
-					continue
+		}
+
+		// Outputs a line of result (i.e. results for one replay)
+		if shouldShowBasedOnFilterNots && shouldShowBasedOnFilters {
+			if *fJSON {
+				if !firstJSONRow {
+					fmt.Println(",")
 				}
-				csvRow = append(csvRow, results[field].Value())
+				firstJSONRow = false
+				row := map[string]string{}
+				for _, field := range fieldNames {
+					row[field] = results[field]
+				}
+				bs, _ := json.Marshal(row)
+				fmt.Printf("%s", bs)
+			} else {
+				csvRow := make([]string, 0, len(fieldNames))
+				for _, field := range fieldNames {
+					csvRow = append(csvRow, results[field])
+				}
+				w.Write(csvRow)
 			}
-			w.Write(csvRow)
 		}
 	}
 	w.Flush()

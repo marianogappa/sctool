@@ -21,7 +21,7 @@ func (a IsThereARace) Description() string {
 	return "Analyzes if there is a specific race in the replay."
 }
 func (a IsThereARace) DependsOn() map[string]struct{} { return map[string]struct{}{} }
-func (a IsThereARace) IsDone() (Result, bool)         { return stringResult{a.result}, a.done }
+func (a IsThereARace) IsDone() (string, bool)         { return a.result, a.done }
 func (a IsThereARace) Version() int                   { return 1 }
 func (a IsThereARace) IsBooleanResult() bool          { return true }
 func (a IsThereARace) IsStringFlag() bool             { return true }
@@ -57,7 +57,7 @@ type MyAPM struct {
 func (a MyAPM) Name() string                                     { return "my-apm" }
 func (a MyAPM) Description() string                              { return "Analyzes the APM of the -me player." }
 func (a MyAPM) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyAPM) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyAPM) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyAPM) Version() int                                     { return 1 }
 func (a MyAPM) IsBooleanResult() bool                            { return false }
 func (a MyAPM) IsStringFlag() bool                               { return false }
@@ -94,7 +94,7 @@ type MyRace struct {
 func (a MyRace) Name() string                                     { return "my-race" }
 func (a MyRace) Description() string                              { return "Analyzes the race of the -me player." }
 func (a MyRace) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRace) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRace) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyRace) Version() int                                     { return 1 }
 func (a MyRace) IsBooleanResult() bool                            { return false }
 func (a MyRace) IsStringFlag() bool                               { return false }
@@ -125,7 +125,7 @@ type MyRaceIsZerg struct {
 func (a MyRaceIsZerg) Name() string                                     { return "my-race-is-zerg" }
 func (a MyRaceIsZerg) Description() string                              { return "Analyzes if the race of the -me player is Zerg." }
 func (a MyRaceIsZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsZerg) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsZerg) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyRaceIsZerg) Version() int                                     { return 1 }
 func (a MyRaceIsZerg) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsZerg) IsStringFlag() bool                               { return false }
@@ -161,7 +161,7 @@ func (a MyRaceIsTerran) Description() string {
 	return "Analyzes if the race of the -me player is Terran."
 }
 func (a MyRaceIsTerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsTerran) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsTerran) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyRaceIsTerran) Version() int                                     { return 1 }
 func (a MyRaceIsTerran) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsTerran) IsStringFlag() bool                               { return false }
@@ -197,7 +197,7 @@ func (a MyRaceIsProtoss) Description() string {
 	return "Analyzes if the race of the -me player is Protoss."
 }
 func (a MyRaceIsProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsProtoss) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyRaceIsProtoss) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyRaceIsProtoss) Version() int                                     { return 1 }
 func (a MyRaceIsProtoss) IsBooleanResult() bool                            { return true }
 func (a MyRaceIsProtoss) IsStringFlag() bool                               { return false }
@@ -231,7 +231,7 @@ type DateTime struct {
 func (a DateTime) Name() string                                     { return "date-time" }
 func (a DateTime) Description() string                              { return "Analyzes the datetime of the replay." }
 func (a DateTime) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a DateTime) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a DateTime) IsDone() (string, bool)                           { return a.result, a.done }
 func (a DateTime) Version() int                                     { return 1 }
 func (a DateTime) IsBooleanResult() bool                            { return false }
 func (a DateTime) IsStringFlag() bool                               { return false }
@@ -254,7 +254,7 @@ func (a DurationMinutes) Description() string {
 	return "Analyzes the duration of the replay in minutes."
 }
 func (a DurationMinutes) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a DurationMinutes) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a DurationMinutes) IsDone() (string, bool)                           { return a.result, a.done }
 func (a DurationMinutes) Version() int                                     { return 1 }
 func (a DurationMinutes) IsBooleanResult() bool                            { return false }
 func (a DurationMinutes) IsStringFlag() bool                               { return false }
@@ -275,7 +275,7 @@ type MyName struct {
 func (a MyName) Name() string                                     { return "my-name" }
 func (a MyName) Description() string                              { return "Analyzes the name of the -me player." }
 func (a MyName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyName) Version() int                                     { return 1 }
 func (a MyName) IsBooleanResult() bool                            { return false }
 func (a MyName) IsStringFlag() bool                               { return false }
@@ -306,7 +306,7 @@ type ReplayName struct {
 func (a ReplayName) Name() string                                     { return "replay-name" }
 func (a ReplayName) Description() string                              { return "Analyzes the replay's name." }
 func (a ReplayName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a ReplayName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a ReplayName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a ReplayName) Version() int                                     { return 1 }
 func (a ReplayName) IsBooleanResult() bool                            { return false }
 func (a ReplayName) IsStringFlag() bool                               { return false }
@@ -327,7 +327,7 @@ type ReplayPath struct {
 func (a ReplayPath) Name() string                                     { return "replay-path" }
 func (a ReplayPath) Description() string                              { return "Analyzes the replay's path." }
 func (a ReplayPath) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a ReplayPath) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a ReplayPath) IsDone() (string, bool)                           { return a.result, a.done }
 func (a ReplayPath) Version() int                                     { return 1 }
 func (a ReplayPath) IsBooleanResult() bool                            { return false }
 func (a ReplayPath) IsStringFlag() bool                               { return false }
@@ -347,7 +347,7 @@ type MyWin struct {
 func (a MyWin) Name() string                                     { return "my-win" }
 func (a MyWin) Description() string                              { return "Analyzes if the -me player won the game." }
 func (a MyWin) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyWin) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyWin) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyWin) Version() int                                     { return 1 }
 func (a MyWin) IsBooleanResult() bool                            { return true }
 func (a MyWin) IsStringFlag() bool                               { return false }
@@ -379,7 +379,7 @@ type MyGame struct {
 func (a MyGame) Name() string                                     { return "my-game" }
 func (a MyGame) Description() string                              { return "Analyzes if the -me player played the game." }
 func (a MyGame) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyGame) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MyGame) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyGame) Version() int                                     { return 1 }
 func (a MyGame) IsBooleanResult() bool                            { return true }
 func (a MyGame) IsStringFlag() bool                               { return false }
@@ -406,7 +406,7 @@ type MapName struct {
 func (a MapName) Name() string                                     { return "map-name" }
 func (a MapName) Description() string                              { return "Analyzes the map's name." }
 func (a MapName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MapName) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
+func (a MapName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MapName) Version() int                                     { return 1 }
 func (a MapName) IsBooleanResult() bool                            { return false }
 func (a MapName) IsStringFlag() bool                               { return false }

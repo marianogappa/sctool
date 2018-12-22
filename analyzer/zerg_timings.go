@@ -20,7 +20,7 @@ func (a MyFirstSpecificUnitSeconds) Description() string {
 	return "Analyzes the time the first specified unit/building/evolution was built, in seconds."
 }
 func (a MyFirstSpecificUnitSeconds) DependsOn() map[string]struct{} { return map[string]struct{}{} }
-func (a MyFirstSpecificUnitSeconds) IsDone() (Result, bool)         { return stringResult{a.result}, a.done }
+func (a MyFirstSpecificUnitSeconds) IsDone() (string, bool)         { return a.result, a.done }
 func (a MyFirstSpecificUnitSeconds) Version() int                   { return 1 }
 func (a MyFirstSpecificUnitSeconds) IsBooleanResult() bool          { return false }
 func (a MyFirstSpecificUnitSeconds) IsStringFlag() bool             { return true }

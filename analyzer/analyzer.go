@@ -45,7 +45,7 @@ type Analyzer interface {
 
 	// Returns true if the analyzer is finished calculating the result, and
 	// returns it. Shouldn't be called before calling StartReadingReplay.
-	IsDone() (Result, bool)
+	IsDone() (string, bool)
 
 	// Useful for managing updates to an Analyzer: whenever an update is made to an
 	// analyzer, the Version should be numerically higher. Then, if there's a cached
@@ -58,17 +58,6 @@ type Analyzer interface {
 	// Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not-- flags.
 	IsBooleanResult() bool
 }
-
-// Result of an Analyzer
-type Result interface {
-	Value() string
-}
-
-type stringResult struct {
-	result string
-}
-
-func (r stringResult) Value() string { return r.result }
 
 // AnalyzerContext is all context necessary for analyzers to properly analyze a replay
 type AnalyzerContext struct {
