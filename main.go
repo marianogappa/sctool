@@ -152,6 +152,7 @@ func main() {
 
 	// Main loop parsing replays
 	// TODO break if there are no Analyzers at the beginning or after an iteration
+replayLoop:
 	for replay := range replays {
 		analyzerInstances := make(map[string]analyzer.Analyzer, len(analyzers))
 		for n, a := range analyzers {
@@ -167,12 +168,17 @@ func main() {
 
 		var results = map[string]string{}
 		for name, a := range analyzerInstances {
+			_, isInFilters := filters[name]
+			_, isInFilterNots := filterNots[name]
 			err, done := a.StartReadingReplay(r, ctx, replay)
 			if err != nil {
 				log.Printf("Error beginning to read replay %v with Analyzer %v: %v\n", replay, a.Name(), err)
 			}
 			if done {
 				results[name], _ = a.IsDone()
+			}
+			if done && ((isInFilterNots && results[name] == "true") || (isInFilters && results[name] != "true")) {
+				continue replayLoop // Optimization: move to next replay if excluded by any filters already
 			}
 			if done || err != nil {
 				delete(analyzerInstances, name)
@@ -183,6 +189,8 @@ func main() {
 				break // Optimization: don't loop over commands if there's nothing to do!
 			}
 			for name, a := range analyzerInstances {
+				_, isInFilters := filters[name]
+				_, isInFilterNots := filterNots[name]
 				err, done := a.ProcessCommand(c)
 				if err != nil {
 					log.Printf("Error reading command on replay %v with Analyzer %v: %v\n", replay, a.Name(), err)
@@ -190,52 +198,39 @@ func main() {
 				if done {
 					results[name], _ = a.IsDone()
 				}
+				if done && ((isInFilterNots && results[name] == "true") || (isInFilters && results[name] != "true")) {
+					continue replayLoop // Optimization: move to next replay if excluded by any filters already
+				}
 				if done || err != nil { // Optimization: delete Analyzers that finished or errored out
 					delete(analyzerInstances, name)
 				}
 			}
 		}
 
-		// Decides if this replay should be output based on filter flags
-		shouldShowBasedOnFilterNots := true
-		for filterNot := range filterNots {
-			if res, ok := results[filterNot]; ok && res == "true" {
-				shouldShowBasedOnFilterNots = false
-			}
-		}
-		shouldShowBasedOnFilters := true
-		for filter := range filters {
-			if res, ok := results[filter]; !ok || res != "true" {
-				shouldShowBasedOnFilters = false
-			}
-		}
-
 		// Outputs a line of result (i.e. results for one replay)
-		if shouldShowBasedOnFilterNots && shouldShowBasedOnFilters {
-			if shouldCopyToOutputLocation {
-				err := copyFile(replay, fmt.Sprintf("%v/%v", *fCopyToIfMatchesFilters, filepath.Base(replay)))
-				if err != nil {
-					log.Printf("Error copying replay with path %v to %v: %v\n", replay, *fCopyToIfMatchesFilters, err)
-				}
+		if shouldCopyToOutputLocation {
+			err := copyFile(replay, fmt.Sprintf("%v/%v", *fCopyToIfMatchesFilters, filepath.Base(replay)))
+			if err != nil {
+				log.Printf("Error copying replay with path %v to %v: %v\n", replay, *fCopyToIfMatchesFilters, err)
 			}
-			if *fJSON {
-				if !firstJSONRow {
-					fmt.Println(",")
-				}
-				firstJSONRow = false
-				row := map[string]string{}
-				for _, field := range fieldNames {
-					row[field] = results[field]
-				}
-				bs, _ := json.Marshal(row)
-				fmt.Printf("%s", bs)
-			} else {
-				csvRow := make([]string, 0, len(fieldNames))
-				for _, field := range fieldNames {
-					csvRow = append(csvRow, results[field])
-				}
-				w.Write(csvRow)
+		}
+		if *fJSON {
+			if !firstJSONRow {
+				fmt.Println(",")
 			}
+			firstJSONRow = false
+			row := map[string]string{}
+			for _, field := range fieldNames {
+				row[field] = results[field]
+			}
+			bs, _ := json.Marshal(row)
+			fmt.Printf("%s", bs)
+		} else {
+			csvRow := make([]string, 0, len(fieldNames))
+			for _, field := range fieldNames {
+				csvRow = append(csvRow, results[field])
+			}
+			w.Write(csvRow)
 		}
 	}
 	w.Flush()
