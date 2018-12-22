@@ -34,6 +34,7 @@ func main() {
 			(&analyzer.ReplayPath{}).Name():      &analyzer.ReplayPath{},
 			(&analyzer.MyWin{}).Name():           &analyzer.MyWin{},
 			(&analyzer.MyGame{}).Name():          &analyzer.MyGame{},
+			(&analyzer.MapName{}).Name():         &analyzer.MapName{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")

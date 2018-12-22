@@ -408,3 +408,22 @@ func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, rep
 	a.done = true
 	return a.done
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+type MapName struct {
+	done   bool
+	result string
+}
+
+func (a MapName) Name() string                            { return "map-name" }
+func (a MapName) Description() string                     { return "Analyzes the map's name." }
+func (a MapName) DependsOn() map[string]struct{}          { return map[string]struct{}{} }
+func (a MapName) IsDone() (Result, bool)                  { return stringResult{a.result}, a.done }
+func (a MapName) Version() int                            { return 1 }
+func (a *MapName) SetArguments(args []string)             {}
+func (a *MapName) ProcessCommand(command repcmd.Cmd) bool { return true }
+func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool {
+	a.result = replay.Header.Map
+	a.done = true
+	return a.done
+}
