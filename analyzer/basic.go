@@ -3,83 +3,53 @@ package analyzer
 import (
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/icza/screp/rep"
 	"github.com/icza/screp/rep/repcmd"
 )
 
 // -------------------------------------------------------------------------------------------------------------------
-type IsThereAZerg struct {
+type IsThereARace struct {
 	done   bool
+	race   string
 	result string
 }
 
-func (a IsThereAZerg) Name() string                                     { return "is-there-a-zerg" }
-func (a IsThereAZerg) Description() string                              { return "Analyzes if there is a zerg player in the replay." }
-func (a IsThereAZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a IsThereAZerg) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
-func (a IsThereAZerg) Version() int                                     { return 1 }
-func (a IsThereAZerg) IsStringFlag() bool                               { return false }
-func (a *IsThereAZerg) SetArguments(args []string) error                { return nil }
-func (a *IsThereAZerg) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *IsThereAZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
-	a.result = "false"
-	for _, p := range replay.Header.OrigPlayers {
-		if p.Race.ShortName == "zerg" {
-			a.result = "true"
-		}
+func (a IsThereARace) Name() string { return "is-there-a-race" }
+func (a IsThereARace) Description() string {
+	return "Analyzes if there is a specific race in the replay."
+}
+func (a IsThereARace) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a IsThereARace) IsDone() (Result, bool)         { return stringResult{a.result}, a.done }
+func (a IsThereARace) Version() int                   { return 1 }
+func (a IsThereARace) IsStringFlag() bool             { return true }
+func (a *IsThereARace) SetArguments(args []string) error {
+	translations := map[string]string{
+		"zerg":    "Zerg",
+		"z":       "Zerg",
+		"protoss": "Protoss",
+		"p":       "Protoss",
+		"toss":    "Protoss",
+		"terran":  "Terran",
+		"t":       "Terran",
+		"ran":     "Terran",
 	}
-	a.done = true
-	return nil, a.done
-}
-
-// -------------------------------------------------------------------------------------------------------------------
-type IsThereATerran struct {
-	done   bool
-	result string
-}
-
-func (a IsThereATerran) Name() string { return "is-there-a-terran" }
-func (a IsThereATerran) Description() string {
-	return "Analyzes if there is a terran player in the replay."
-}
-func (a IsThereATerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a IsThereATerran) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
-func (a IsThereATerran) Version() int                                     { return 1 }
-func (a IsThereATerran) IsStringFlag() bool                               { return false }
-func (a *IsThereATerran) SetArguments(args []string) error                { return nil }
-func (a *IsThereATerran) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *IsThereATerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
-	a.result = "false"
-	for _, p := range replay.Header.OrigPlayers {
-		if p.Race.ShortName == "ran" {
-			a.result = "true"
-		}
+	if len(args) < 1 {
+		return fmt.Errorf("please provide a valid race name e.g. Zerg/Protoss/Terran") // TODO provide list
 	}
-	a.done = true
-	return nil, a.done
+	r := strings.ToLower(args[0])
+	if _, ok := translations[r]; !ok {
+		return fmt.Errorf("invalid race name %v", args[0]) // TODO provide list
+	}
+	a.race = translations[r]
+	return nil
 }
-
-// -------------------------------------------------------------------------------------------------------------------
-type IsThereAProtoss struct {
-	done   bool
-	result string
-}
-
-func (a IsThereAProtoss) Name() string { return "is-there-a-protoss" }
-func (a IsThereAProtoss) Description() string {
-	return "Analyzes if there is a protoss player in the replay."
-}
-func (a IsThereAProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a IsThereAProtoss) IsDone() (Result, bool)                           { return stringResult{a.result}, a.done }
-func (a IsThereAProtoss) Version() int                                     { return 1 }
-func (a IsThereAProtoss) IsStringFlag() bool                               { return false }
-func (a *IsThereAProtoss) SetArguments(args []string) error                { return nil }
-func (a *IsThereAProtoss) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *IsThereAProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *IsThereARace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *IsThereARace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.OrigPlayers {
-		if p.Race.ShortName == "toss" {
+		if p.Race.Name == a.race {
 			a.result = "true"
 		}
 	}

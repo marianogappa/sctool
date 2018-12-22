@@ -25,7 +25,7 @@ func (a MyFirstSpecificUnitSeconds) Version() int                   { return 1 }
 func (a MyFirstSpecificUnitSeconds) IsStringFlag() bool             { return true }
 func (a *MyFirstSpecificUnitSeconds) SetArguments(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("please provide valid unit/building/evolution name e.g. Zergling") // TODO provide list
+		return fmt.Errorf("please provide a valid unit/building/evolution name e.g. Zergling") // TODO provide list
 	}
 	if _, ok := nameToUnitID[args[0]]; !ok {
 		return fmt.Errorf("invalid unit/building/evolution name") // TODO provide list
