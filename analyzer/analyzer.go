@@ -28,7 +28,7 @@ type Analyzer interface {
 	// Should be called before any ProcessCommand and only if IsDone is false.
 	// Returns true if the analyzer is finished calculating the result (i.e. no need
 	// to process commands)
-	StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext) bool
+	StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) bool
 
 	// Should be called for every command during a Replay analizing cycle.
 	// StartReadingReplay should be called before processing any command, to refresh

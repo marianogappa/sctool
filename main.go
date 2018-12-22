@@ -30,6 +30,8 @@ func main() {
 			(&analyzer.MyRaceIsZerg{}).Name():    &analyzer.MyRaceIsZerg{},
 			(&analyzer.MyRaceIsTerran{}).Name():  &analyzer.MyRaceIsTerran{},
 			(&analyzer.MyRaceIsProtoss{}).Name(): &analyzer.MyRaceIsProtoss{},
+			(&analyzer.ReplayName{}).Name():      &analyzer.ReplayName{},
+			(&analyzer.ReplayPath{}).Name():      &analyzer.ReplayPath{},
 		}
 		flags      = map[string]*bool{}
 		fReplay    = flag.String("replay", "", "path to replay file")
@@ -117,7 +119,7 @@ func main() {
 
 		var results = map[string]analyzer.Result{}
 		for name, a := range analyzerInstances {
-			if a.StartReadingReplay(r, ctx) {
+			if a.StartReadingReplay(r, ctx, replay) {
 				results[name], _ = a.IsDone()
 				delete(analyzerInstances, name)
 			}
@@ -146,6 +148,10 @@ func main() {
 		} else {
 			csvRow := make([]string, 0, len(csvFieldNames))
 			for _, field := range csvFieldNames {
+				if results[field] == nil {
+					csvRow = append(csvRow, "")
+					continue
+				}
 				csvRow = append(csvRow, results[field].Value())
 			}
 			w.Write(csvRow)
