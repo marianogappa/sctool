@@ -269,6 +269,16 @@ var (
 		"Terran Vespene Gas Tank Type 1":       0xE2,
 		"Terran Vespene Gas Tank Type 2":       0xE3,
 	}
+	raceNameTranslations = map[string]string{
+		"zerg":    "Zerg",
+		"z":       "Zerg",
+		"protoss": "Protoss",
+		"p":       "Protoss",
+		"toss":    "Protoss",
+		"terran":  "Terran",
+		"t":       "Terran",
+		"ran":     "Terran",
+	}
 	// trainedUnitIDs = map[uint16]struct{}{
 	// 	0x00: struct{}{}, // Terran units
 	// 	0x01: struct{}{},

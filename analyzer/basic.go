@@ -25,24 +25,14 @@ func (a IsThereARace) IsDone() (Result, bool)         { return stringResult{a.re
 func (a IsThereARace) Version() int                   { return 1 }
 func (a IsThereARace) IsStringFlag() bool             { return true }
 func (a *IsThereARace) SetArguments(args []string) error {
-	translations := map[string]string{
-		"zerg":    "Zerg",
-		"z":       "Zerg",
-		"protoss": "Protoss",
-		"p":       "Protoss",
-		"toss":    "Protoss",
-		"terran":  "Terran",
-		"t":       "Terran",
-		"ran":     "Terran",
-	}
 	if len(args) < 1 {
 		return fmt.Errorf("please provide a valid race name e.g. Zerg/Protoss/Terran") // TODO provide list
 	}
 	r := strings.ToLower(args[0])
-	if _, ok := translations[r]; !ok {
+	if _, ok := raceNameTranslations[r]; !ok {
 		return fmt.Errorf("invalid race name %v", args[0]) // TODO provide list
 	}
-	a.race = translations[r]
+	a.race = raceNameTranslations[r]
 	return nil
 }
 func (a *IsThereARace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
