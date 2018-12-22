@@ -155,9 +155,20 @@ func main() {
 replayLoop:
 	for replay := range replays {
 		analyzerInstances := make(map[string]analyzer.Analyzer, len(analyzers))
+		analyzerNames := []string{}
 		for n, a := range analyzers {
 			analyzerInstances[n] = a
+			analyzerNames = append(analyzerNames, n)
 		}
+		sort.Slice(analyzerNames, func(i, j int) bool { // Optimization: execute analyzers that are filters first
+			_, iIsInFilters := filters[analyzerNames[i]]
+			_, iIsInFilterNots := filters[analyzerNames[i]]
+			_, jIsInFilters := filters[analyzerNames[j]]
+			_, jIsInFilterNots := filters[analyzerNames[j]]
+			iIsImportant := iIsInFilters || iIsInFilterNots
+			jIsImportant := jIsInFilters || jIsInFilterNots
+			return (iIsImportant && !jIsImportant) || (iIsImportant == jIsImportant && analyzerNames[i] <= analyzerNames[j])
+		})
 
 		r, err := repparser.ParseFile(replay)
 		if err != nil {
@@ -167,12 +178,16 @@ replayLoop:
 		tryCompute(r)
 
 		var results = map[string]string{}
-		for name, a := range analyzerInstances {
+		for _, name := range analyzerNames {
+			a, ok := analyzerInstances[name]
+			if !ok { // N.B. Analyzer might have been removed
+				continue
+			}
 			_, isInFilters := filters[name]
 			_, isInFilterNots := filterNots[name]
 			err, done := a.StartReadingReplay(r, ctx, replay)
 			if err != nil {
-				log.Printf("Error beginning to read replay %v with Analyzer %v: %v\n", replay, a.Name(), err)
+				log.Printf("Error beginning to read replay %v with Analyzer %v: %v\n", replay, name, err)
 			}
 			if done {
 				results[name], _ = a.IsDone()
@@ -188,7 +203,11 @@ replayLoop:
 			if len(analyzerInstances) == 0 {
 				break // Optimization: don't loop over commands if there's nothing to do!
 			}
-			for name, a := range analyzerInstances {
+			for _, name := range analyzerNames {
+				a, ok := analyzerInstances[name]
+				if !ok { // N.B. Analyzer might have been removed
+					continue
+				}
 				_, isInFilters := filters[name]
 				_, isInFilterNots := filterNots[name]
 				err, done := a.ProcessCommand(c)
