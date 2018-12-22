@@ -102,122 +102,54 @@ func (a *MyRace) SetArguments(args []string) error                { return nil }
 func (a *MyRace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
 func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
-	if replay.Computed == nil {
-		a.done = true
-		return nil, true
+	a.done = true
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
 	}
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = p.Race.Name
-			a.done = true
-			break
-		}
-	}
+	a.result = replay.Header.PIDPlayers[playerID].Race.Name
 	return nil, a.done
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-type MyRaceIsZerg struct {
+type MyRaceIs struct {
 	done   bool
 	result string
+	race   string
 }
 
-func (a MyRaceIsZerg) Name() string                                     { return "my-race-is-zerg" }
-func (a MyRaceIsZerg) Description() string                              { return "Analyzes if the race of the -me player is Zerg." }
-func (a MyRaceIsZerg) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsZerg) IsDone() (string, bool)                           { return a.result, a.done }
-func (a MyRaceIsZerg) Version() int                                     { return 1 }
-func (a MyRaceIsZerg) IsBooleanResult() bool                            { return true }
-func (a MyRaceIsZerg) IsStringFlag() bool                               { return false }
-func (a *MyRaceIsZerg) SetArguments(args []string) error                { return nil }
-func (a *MyRaceIsZerg) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyRaceIsZerg) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a MyRaceIs) Name() string { return "my-race-is" }
+func (a MyRaceIs) Description() string {
+	return "Analyzes if the race of the -me player is the one specified."
+}
+func (a MyRaceIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a MyRaceIs) IsDone() (string, bool)         { return a.result, a.done }
+func (a MyRaceIs) Version() int                   { return 1 }
+func (a MyRaceIs) IsBooleanResult() bool          { return true }
+func (a MyRaceIs) IsStringFlag() bool             { return true }
+func (a *MyRaceIs) SetArguments(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("please provide a valid race name e.g. Zerg/Protoss/Terran") // TODO provide list
+	}
+	r := strings.ToLower(args[0])
+	if _, ok := raceNameTranslations[r]; !ok {
+		return fmt.Errorf("invalid race name %v", args[0]) // TODO provide list
+	}
+	a.race = raceNameTranslations[r]
+	return nil
+}
+func (a *MyRaceIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyRaceIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
-	if replay.Computed == nil {
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
 		a.done = true
-		return nil, true
+		return fmt.Errorf("-me player not present in this replay"), true
 	}
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = "false"
-			if p.Race.Name == "Zerg" {
-				a.result = "true"
-			}
-			a.done = true
-			break
-		}
-	}
-	return nil, a.done
-}
-
-// -------------------------------------------------------------------------------------------------------------------
-type MyRaceIsTerran struct {
-	done   bool
-	result string
-}
-
-func (a MyRaceIsTerran) Name() string { return "my-race-is-terran" }
-func (a MyRaceIsTerran) Description() string {
-	return "Analyzes if the race of the -me player is Terran."
-}
-func (a MyRaceIsTerran) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsTerran) IsDone() (string, bool)                           { return a.result, a.done }
-func (a MyRaceIsTerran) Version() int                                     { return 1 }
-func (a MyRaceIsTerran) IsBooleanResult() bool                            { return true }
-func (a MyRaceIsTerran) IsStringFlag() bool                               { return false }
-func (a *MyRaceIsTerran) SetArguments(args []string) error                { return nil }
-func (a *MyRaceIsTerran) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyRaceIsTerran) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
-	a.result = ""
-	if replay.Computed == nil {
-		a.done = true
-		return nil, true
-	}
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = "false"
-			if p.Race.Name == "Terran" {
-				a.result = "true"
-			}
-			a.done = true
-			break
-		}
-	}
-	return nil, a.done
-}
-
-// -------------------------------------------------------------------------------------------------------------------
-type MyRaceIsProtoss struct {
-	done   bool
-	result string
-}
-
-func (a MyRaceIsProtoss) Name() string { return "my-race-is-protoss" }
-func (a MyRaceIsProtoss) Description() string {
-	return "Analyzes if the race of the -me player is Protoss."
-}
-func (a MyRaceIsProtoss) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
-func (a MyRaceIsProtoss) IsDone() (string, bool)                           { return a.result, a.done }
-func (a MyRaceIsProtoss) Version() int                                     { return 1 }
-func (a MyRaceIsProtoss) IsBooleanResult() bool                            { return true }
-func (a MyRaceIsProtoss) IsStringFlag() bool                               { return false }
-func (a *MyRaceIsProtoss) SetArguments(args []string) error                { return nil }
-func (a *MyRaceIsProtoss) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyRaceIsProtoss) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
-	a.result = ""
-	if replay.Computed == nil {
-		a.done = true
-		return nil, true
-	}
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = "false"
-			if p.Race.Name == "Protoss" {
-				a.result = "true"
-			}
-			a.done = true
-			break
-		}
+	a.done = true
+	a.result = "false"
+	if replay.Header.PIDPlayers[playerID].Race.Name == a.race {
+		a.result = "true"
 	}
 	return nil, a.done
 }
