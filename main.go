@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -35,13 +36,15 @@ func main() {
 			(&analyzer.MapName{}).Name():                    &analyzer.MapName{},
 			(&analyzer.MyFirstSpecificUnitSeconds{}).Name(): &analyzer.MyFirstSpecificUnitSeconds{},
 		}
-		boolFlags   = map[string]*bool{}
-		stringFlags = map[string]*string{}
-		fReplay     = flag.String("replay", "", "(>= 1 replays required) path to replay file")
-		fReplays    = flag.String("replays", "", "(>= 1 replays required) comma-separated paths to replay files")
-		fReplayDir  = flag.String("replay-dir", "", "(>= 1 replays required) path to folder with replays (recursive)")
-		fMe         = flag.String("me", "", "comma-separated list of player names to identify as the main player")
-		fJSON       = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
+		boolFlags               = map[string]*bool{}
+		stringFlags             = map[string]*string{}
+		fReplay                 = flag.String("replay", "", "(>= 1 replays required) path to replay file")
+		fReplays                = flag.String("replays", "", "(>= 1 replays required) comma-separated paths to replay files")
+		fReplayDir              = flag.String("replay-dir", "", "(>= 1 replays required) path to folder with replays (recursive)")
+		fMe                     = flag.String("me", "", "comma-separated list of player names to identify as the main player")
+		fJSON                   = flag.Bool("json", false, "outputs a JSON instead of the default CSV")
+		fCopyToIfMatchesFilters = flag.String("copy-to-if-matches-filters", "",
+			"copy replay files matched by -filter-- and not matched by -filter--not-- filters to specified directory")
 	)
 	for name, a := range _analyzers {
 		if a.IsStringFlag() {
@@ -56,11 +59,21 @@ func main() {
 	}
 	flag.Parse()
 	var (
-		analyzers  = map[string]analyzer.Analyzer{}
-		filters    = map[string]struct{}{}
-		filterNots = map[string]struct{}{}
-		fieldNames = []string{} // TODO add filename
+		analyzers                  = map[string]analyzer.Analyzer{}
+		filters                    = map[string]struct{}{}
+		filterNots                 = map[string]struct{}{}
+		fieldNames                 = []string{} // TODO add filename
+		shouldCopyToOutputLocation = true
 	)
+	if ok, err := isDirExist(*fCopyToIfMatchesFilters); *fCopyToIfMatchesFilters == "" || !ok || err != nil {
+		shouldCopyToOutputLocation = false
+		if *fCopyToIfMatchesFilters != "" && !ok {
+			log.Printf("Output directory doesn't exist: %v\n", *fCopyToIfMatchesFilters)
+		}
+		if *fCopyToIfMatchesFilters != "" && err != nil {
+			log.Printf("Error locating output directory (%v): %v\n", *fCopyToIfMatchesFilters, err)
+		}
+	}
 	for name, f := range boolFlags {
 		if *f {
 			if strings.HasPrefix(name, "filter--") {
@@ -196,6 +209,12 @@ func main() {
 
 		// Outputs a line of result (i.e. results for one replay)
 		if shouldShowBasedOnFilterNots && shouldShowBasedOnFilters {
+			if shouldCopyToOutputLocation {
+				err := copyFile(replay, fmt.Sprintf("%v/%v", *fCopyToIfMatchesFilters, filepath.Base(replay)))
+				if err != nil {
+					log.Printf("Error copying replay with path %v to %v: %v\n", replay, *fCopyToIfMatchesFilters, err)
+				}
+			}
 			if *fJSON {
 				if !firstJSONRow {
 					fmt.Println(",")
@@ -244,4 +263,75 @@ func unmarshalArguments(s string) []string {
 		}
 	}
 	return ss
+}
+
+// CopyFile copies a file from src to dst. If src and dst files exist, and are
+// the same, then return success. Otherise, attempt to create a hard link
+// between the two files. If that fail, copy the file contents from src to dst.
+func copyFile(src, dst string) (err error) {
+	sfi, err := os.Stat(src)
+	if err != nil {
+		return
+	}
+	if !sfi.Mode().IsRegular() {
+		// cannot copy non-regular files (e.g., directories,
+		// symlinks, devices, etc.)
+		return fmt.Errorf("CopyFile: non-regular source file %s (%q)", sfi.Name(), sfi.Mode().String())
+	}
+	dfi, err := os.Stat(dst)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return
+		}
+	} else {
+		if !(dfi.Mode().IsRegular()) {
+			return fmt.Errorf("CopyFile: non-regular destination file %s (%q)", dfi.Name(), dfi.Mode().String())
+		}
+		if os.SameFile(sfi, dfi) {
+			return
+		}
+	}
+	err = copyFileContents(src, dst)
+	return
+}
+
+// https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
+// copyFileContents copies the contents of the file named src to the file named
+// by dst. The file will be created if it does not already exist. If the
+// destination file exists, all it's contents will be replaced by the contents
+// of the source file.
+func copyFileContents(src, dst string) (err error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return
+	}
+	defer func() {
+		cerr := out.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
+	if _, err = io.Copy(out, in); err != nil {
+		return
+	}
+	err = out.Sync()
+	return
+}
+
+// https://stackoverflow.com/questions/10510691/how-to-check-whether-a-file-or-directory-exists
+// exists returns whether the given file or directory exists
+func isDirExist(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
