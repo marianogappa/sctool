@@ -3,6 +3,7 @@ package analyzer
 import (
 	"fmt"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/icza/screp/rep"
@@ -194,6 +195,80 @@ func (a *DurationMinutes) SetArguments(args []string) error                { ret
 func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
 func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = fmt.Sprintf("%v", int(replay.Header.Duration().Minutes()))
+	a.done = true
+	return nil, a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type DurationMinutesIsGreaterThan struct {
+	done    bool
+	result  string
+	minutes int
+}
+
+func (a DurationMinutesIsGreaterThan) Name() string { return "duration-minutes-is-greater-than" }
+func (a DurationMinutesIsGreaterThan) Description() string {
+	return "Analyzes if the duration of the replay in minutes is greater than specified."
+}
+func (a DurationMinutesIsGreaterThan) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a DurationMinutesIsGreaterThan) IsDone() (string, bool)         { return a.result, a.done }
+func (a DurationMinutesIsGreaterThan) Version() int                   { return 1 }
+func (a DurationMinutesIsGreaterThan) IsBooleanResult() bool          { return true }
+func (a DurationMinutesIsGreaterThan) IsStringFlag() bool             { return true }
+func (a *DurationMinutesIsGreaterThan) SetArguments(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("please provide a valid number of minutes")
+	}
+	n, err := strconv.Atoi(args[0])
+	if err != nil {
+		return fmt.Errorf("invalid number of minutes: %v", args[0])
+	}
+	a.minutes = n
+	return nil
+}
+func (a *DurationMinutesIsGreaterThan) ProcessCommand(command repcmd.Cmd) (error, bool) {
+	return nil, true
+}
+func (a *DurationMinutesIsGreaterThan) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	actualMinutes := int(replay.Header.Duration().Minutes())
+	a.result = fmt.Sprintf("%v", actualMinutes > a.minutes)
+	a.done = true
+	return nil, a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type DurationMinutesIsLowerThan struct {
+	done    bool
+	result  string
+	minutes int
+}
+
+func (a DurationMinutesIsLowerThan) Name() string { return "duration-minutes-is-lower-than" }
+func (a DurationMinutesIsLowerThan) Description() string {
+	return "Analyzes if the duration of the replay in minutes is lower than specified."
+}
+func (a DurationMinutesIsLowerThan) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a DurationMinutesIsLowerThan) IsDone() (string, bool)         { return a.result, a.done }
+func (a DurationMinutesIsLowerThan) Version() int                   { return 1 }
+func (a DurationMinutesIsLowerThan) IsBooleanResult() bool          { return true }
+func (a DurationMinutesIsLowerThan) IsStringFlag() bool             { return true }
+func (a *DurationMinutesIsLowerThan) SetArguments(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("please provide a valid number of minutes")
+	}
+	n, err := strconv.Atoi(args[0])
+	if err != nil {
+		return fmt.Errorf("invalid number of minutes: %v", args[0])
+	}
+	a.minutes = n
+	return nil
+}
+func (a *DurationMinutesIsLowerThan) ProcessCommand(command repcmd.Cmd) (error, bool) {
+	return nil, true
+}
+func (a *DurationMinutesIsLowerThan) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	actualMinutes := int(replay.Header.Duration().Minutes())
+	a.result = fmt.Sprintf("%v", actualMinutes < a.minutes)
 	a.done = true
 	return nil, a.done
 }

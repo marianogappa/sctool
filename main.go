@@ -19,19 +19,33 @@ import (
 func main() {
 	var (
 		_analyzers = map[string]analyzer.Analyzer{
-			(&analyzer.MyAPM{}).Name():                      &analyzer.MyAPM{},
-			(&analyzer.MyRace{}).Name():                     &analyzer.MyRace{},
-			(&analyzer.DateTime{}).Name():                   &analyzer.DateTime{},
-			(&analyzer.DurationMinutes{}).Name():            &analyzer.DurationMinutes{},
-			(&analyzer.MyName{}).Name():                     &analyzer.MyName{},
-			(&analyzer.IsThereARace{}).Name():               &analyzer.IsThereARace{},
-			(&analyzer.MyRaceIs{}).Name():                   &analyzer.MyRaceIs{},
-			(&analyzer.ReplayName{}).Name():                 &analyzer.ReplayName{},
-			(&analyzer.ReplayPath{}).Name():                 &analyzer.ReplayPath{},
-			(&analyzer.MyWin{}).Name():                      &analyzer.MyWin{},
-			(&analyzer.MyGame{}).Name():                     &analyzer.MyGame{},
-			(&analyzer.MapName{}).Name():                    &analyzer.MapName{},
-			(&analyzer.MyFirstSpecificUnitSeconds{}).Name(): &analyzer.MyFirstSpecificUnitSeconds{},
+			(&analyzer.MyAPM{}).Name():                        &analyzer.MyAPM{},
+			(&analyzer.MyRace{}).Name():                       &analyzer.MyRace{},
+			(&analyzer.DateTime{}).Name():                     &analyzer.DateTime{},
+			(&analyzer.DurationMinutes{}).Name():              &analyzer.DurationMinutes{},
+			(&analyzer.DurationMinutesIsGreaterThan{}).Name(): &analyzer.DurationMinutesIsGreaterThan{},
+			(&analyzer.DurationMinutesIsLowerThan{}).Name():   &analyzer.DurationMinutesIsLowerThan{},
+			(&analyzer.MyName{}).Name():                       &analyzer.MyName{},
+			(&analyzer.IsThereARace{}).Name():                 &analyzer.IsThereARace{},
+			(&analyzer.MyRaceIs{}).Name():                     &analyzer.MyRaceIs{},
+			(&analyzer.ReplayName{}).Name():                   &analyzer.ReplayName{},
+			(&analyzer.ReplayPath{}).Name():                   &analyzer.ReplayPath{},
+			(&analyzer.MyWin{}).Name():                        &analyzer.MyWin{},
+			(&analyzer.MyGame{}).Name():                       &analyzer.MyGame{},
+			(&analyzer.MapName{}).Name():                      &analyzer.MapName{},
+			(&analyzer.MyFirstSpecificUnitSeconds{}).Name():   &analyzer.MyFirstSpecificUnitSeconds{},
+			// TODO Matchup
+			// TODO MatchupIs
+			// TODO Is1v1
+			// TODO Is2v2
+			// TODO MyBOIs9Pool
+			// TODO MyBOIs12Pool
+			// TODO MyBOIsOverpool
+			// TODO MyBOIs12Hatch
+			// TODO MyBOIs3HatchBeforePool
+			// TODO MyBOIs2HatchBeforePool
+			// TODO MyBOIs1-1-1
+			// TODO MyBOIs2HatchSpire
 		}
 		boolFlags               = map[string]*bool{}
 		stringFlags             = map[string]*string{}
@@ -80,7 +94,7 @@ func main() {
 				addToFieldNames = false
 			} else if strings.HasPrefix(name, "filter-not--") {
 				name = name[len("filter-not--"):] // side-effect so that the analyzer runs
-				filterNots[name[len("filter-not--"):]] = struct{}{}
+				filterNots[name] = struct{}{}
 				addToFieldNames = false
 			}
 			analyzers[name] = _analyzers[name]
@@ -151,7 +165,7 @@ func main() {
 	}
 
 	// Main loop parsing replays
-	// TODO break if there are no Analyzers at the beginning or after an iteration
+	// TODO evaluate if it's important that replay traversal is non-deterministic
 replayLoop:
 	for replay := range replays {
 		analyzerInstances := make(map[string]analyzer.Analyzer, len(analyzers))
@@ -162,9 +176,9 @@ replayLoop:
 		}
 		sort.Slice(analyzerNames, func(i, j int) bool { // Optimization: execute analyzers that are filters first
 			_, iIsInFilters := filters[analyzerNames[i]]
-			_, iIsInFilterNots := filters[analyzerNames[i]]
+			_, iIsInFilterNots := filterNots[analyzerNames[i]]
 			_, jIsInFilters := filters[analyzerNames[j]]
-			_, jIsInFilterNots := filters[analyzerNames[j]]
+			_, jIsInFilterNots := filterNots[analyzerNames[j]]
 			iIsImportant := iIsInFilters || iIsInFilterNots
 			jIsImportant := jIsInFilters || jIsInFilterNots
 			return (iIsImportant && !jIsImportant) || (iIsImportant == jIsImportant && analyzerNames[i] <= analyzerNames[j])
