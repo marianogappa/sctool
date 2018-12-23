@@ -37,6 +37,7 @@ func main() {
 			(&analyzer.Matchup{}).Name():                      &analyzer.Matchup{},
 			(&analyzer.MyMatchup{}).Name():                    &analyzer.MyMatchup{},
 			(&analyzer.MatchupIs{}).Name():                    &analyzer.MatchupIs{},
+			(&analyzer.MyMatchupIs{}).Name():                  &analyzer.MyMatchupIs{},
 			// TODO MatchupIs
 			// TODO Is1v1
 			// TODO Is2v2
@@ -65,6 +66,9 @@ func main() {
 		} else {
 			boolFlags[name] = flag.Bool(name, false, a.Description())
 		}
+		// TODO Bug: string flags that are filters accept but ignore arguments, therefore always being false
+		// Moreover, analyzers are mapped by name, so if both filter and non filter versions exist they override
+		// each other.
 		if a.IsBooleanResult() {
 			boolFlags["filter--"+name] = flag.Bool("filter--"+name, false, "Filter for: "+a.Description())
 			boolFlags["filter-not--"+name] = flag.Bool("filter-not--"+name, false, "Filter-Not for: "+a.Description())
@@ -113,7 +117,7 @@ func main() {
 				continue
 			}
 			analyzers[name] = _analyzers[name]
-			fieldNames = append(fieldNames, name)
+			fieldNames = append(fieldNames, name) // TODO make a fieldDisplayNames with parameters
 		}
 	}
 

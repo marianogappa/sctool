@@ -524,3 +524,49 @@ func (a *MatchupIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, 
 	a.result = fmt.Sprintf("%v", reflect.DeepEqual(a.races, actualRaces))
 	return nil, a.done
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyMatchupIs struct {
+	done   bool
+	result string
+	races  []string
+}
+
+func (a MyMatchupIs) Name() string { return "my-matchup-is" }
+func (a MyMatchupIs) Description() string {
+	return "Analyzes if the replay's matchup is equal to the specified one, from the -me player perspective (only works for 1v1 for now)."
+}
+func (a MyMatchupIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a MyMatchupIs) IsDone() (string, bool)         { return a.result, a.done }
+func (a MyMatchupIs) Version() int                   { return 1 }
+func (a MyMatchupIs) IsBooleanResult() bool          { return true }
+func (a MyMatchupIs) IsStringFlag() bool             { return true }
+func (a *MyMatchupIs) SetArguments(args []string) error {
+	if len(args) < 1 || len(args[0]) != 3 {
+		return fmt.Errorf("please provide a valid matchup e.g. TvZ (only works for 1v1 for now)")
+	}
+	args[0] = strings.ToUpper(args[0])
+	a.races = append(a.races, string(args[0][0]), string(args[0][2]))
+	return nil
+}
+func (a *MyMatchupIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyMatchupIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	a.done = true
+	a.result = "false"
+	if len(replay.Header.Players) != 2 {
+		return nil, true
+	}
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
+	}
+	actualRaces := []string{
+		strings.ToUpper(string(replay.Header.Players[0].Race.Letter)),
+		strings.ToUpper(string(replay.Header.Players[1].Race.Letter)),
+	}
+	if playerID == 1 {
+		actualRaces[0], actualRaces[1] = actualRaces[1], actualRaces[0]
+	}
+	a.result = fmt.Sprintf("%v", reflect.DeepEqual(a.races, actualRaces))
+	return nil, a.done
+}
