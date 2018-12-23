@@ -40,7 +40,7 @@ func main() {
 	}
 	flag.Parse()
 
-	ctx := analyzer.AnalyzerContext{Me: map[string]struct{}{}}
+	ctx := analyzer.Context{Me: map[string]struct{}{}}
 	if fMe != nil && len(*fMe) > 0 {
 		for _, name := range strings.Split(*fMe, ",") {
 			ctx.Me[strings.TrimSpace(name)] = struct{}{}

@@ -38,7 +38,7 @@ type Analyzer interface {
 	// to process commands)
 	// It may error, signaling that this Analyzer should no longer be used, and an error
 	// should be shown to the client, but execution of the rest may continue.
-	StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool)
+	StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool)
 
 	// Should be called for every command during a Replay analizing cycle.
 	// StartReadingReplay should be called before processing any command, to refresh
@@ -100,25 +100,25 @@ var Analyzers = map[string]Analyzer{
 	// TODO MyBOIs2HatchSpire
 }
 
-// AnalyzerContext is all context necessary for analyzers to properly analyze a replay
-type AnalyzerContext struct {
+// Context is all context necessary for analyzers to properly analyze a replay
+type Context struct {
 	Me map[string]struct{}
 }
 
-func NewAnalyzerContext(me map[string]struct{}) AnalyzerContext {
-	return AnalyzerContext{me}
+func NewContext(me map[string]struct{}) Context {
+	return Context{me}
 }
 
 type AnalyzerExecutor struct {
 	replayPaths                []string
 	analyzerWrappers           []analyzerWrapper
-	ctx                        AnalyzerContext
+	ctx                        Context
 	output                     Output
 	copyPath                   string
 	shouldCopyToOutputLocation bool
 }
 
-func NewAnalyzerExecutor(replayPaths []string, analyzerRequests [][]string, ctx AnalyzerContext, output Output, copyPath string) (*AnalyzerExecutor, []error) {
+func NewAnalyzerExecutor(replayPaths []string, analyzerRequests [][]string, ctx Context, output Output, copyPath string) (*AnalyzerExecutor, []error) {
 	var (
 		errs, rpErrs, aeErrs []error
 		ae                   = &AnalyzerExecutor{}

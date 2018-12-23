@@ -37,7 +37,7 @@ func (a *MyFirstSpecificUnitSeconds) SetArguments(args []string) error {
 	a.unitID = nameToUnitID[args[0]]
 	return nil
 }
-func (a *MyFirstSpecificUnitSeconds) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyFirstSpecificUnitSeconds) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = "-1"
 	a.playerID = findPlayerID(replay, ctx.Me)
 	a.done = a.playerID == 127 // If we don't find it, no need to see commands

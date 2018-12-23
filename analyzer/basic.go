@@ -41,7 +41,7 @@ func (a *IsThereARace) SetArguments(args []string) error {
 	return nil
 }
 func (a *IsThereARace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *IsThereARace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *IsThereARace) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = "false"
 	for _, p := range replay.Header.OrigPlayers {
 		if p.Race.Name == a.race {
@@ -68,7 +68,7 @@ func (a MyAPM) IsBooleanResult() bool                            { return false 
 func (a MyAPM) IsStringFlag() bool                               { return false }
 func (a *MyAPM) SetArguments(args []string) error                { return nil }
 func (a *MyAPM) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	if replay.Computed == nil {
 		a.result = "-1"
 		a.done = true
@@ -104,7 +104,7 @@ func (a MyRace) IsBooleanResult() bool                            { return false
 func (a MyRace) IsStringFlag() bool                               { return false }
 func (a *MyRace) SetArguments(args []string) error                { return nil }
 func (a *MyRace) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyRace) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = ""
 	a.done = true
 	playerID := findPlayerID(replay, ctx.Me)
@@ -144,7 +144,7 @@ func (a *MyRaceIs) SetArguments(args []string) error {
 	return nil
 }
 func (a *MyRaceIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyRaceIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyRaceIs) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = ""
 	playerID := findPlayerID(replay, ctx.Me)
 	if playerID == 127 {
@@ -175,7 +175,7 @@ func (a DateTime) IsBooleanResult() bool                            { return fal
 func (a DateTime) IsStringFlag() bool                               { return false }
 func (a *DateTime) SetArguments(args []string) error                { return nil }
 func (a *DateTime) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *DateTime) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *DateTime) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = fmt.Sprintf("%v", replay.Header.StartTime)
 	a.done = true
 	return nil, a.done
@@ -199,7 +199,7 @@ func (a DurationMinutes) IsBooleanResult() bool                            { ret
 func (a DurationMinutes) IsStringFlag() bool                               { return false }
 func (a *DurationMinutes) SetArguments(args []string) error                { return nil }
 func (a *DurationMinutes) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *DurationMinutes) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = fmt.Sprintf("%v", int(replay.Header.Duration().Minutes()))
 	a.done = true
 	return nil, a.done
@@ -238,7 +238,7 @@ func (a *DurationMinutesIsGreaterThan) SetArguments(args []string) error {
 func (a *DurationMinutesIsGreaterThan) ProcessCommand(command repcmd.Cmd) (error, bool) {
 	return nil, true
 }
-func (a *DurationMinutesIsGreaterThan) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *DurationMinutesIsGreaterThan) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	actualMinutes := int(replay.Header.Duration().Minutes())
 	a.result = fmt.Sprintf("%v", actualMinutes > a.minutes)
 	a.done = true
@@ -278,7 +278,7 @@ func (a *DurationMinutesIsLowerThan) SetArguments(args []string) error {
 func (a *DurationMinutesIsLowerThan) ProcessCommand(command repcmd.Cmd) (error, bool) {
 	return nil, true
 }
-func (a *DurationMinutesIsLowerThan) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *DurationMinutesIsLowerThan) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	actualMinutes := int(replay.Header.Duration().Minutes())
 	a.result = fmt.Sprintf("%v", actualMinutes < a.minutes)
 	a.done = true
@@ -301,7 +301,7 @@ func (a MyName) IsBooleanResult() bool                            { return false
 func (a MyName) IsStringFlag() bool                               { return false }
 func (a *MyName) SetArguments(args []string) error                { return nil }
 func (a *MyName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = ""
 	a.done = true
 	playerID := findPlayerID(replay, ctx.Me)
@@ -328,7 +328,7 @@ func (a ReplayName) IsBooleanResult() bool                            { return f
 func (a ReplayName) IsStringFlag() bool                               { return false }
 func (a *ReplayName) SetArguments(args []string) error                { return nil }
 func (a *ReplayName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *ReplayName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *ReplayName) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = path.Base(replayPath)
 	a.result = a.result[:len(a.result)-4]
 	return nil, a.done
@@ -350,7 +350,7 @@ func (a ReplayPath) IsBooleanResult() bool                            { return f
 func (a ReplayPath) IsStringFlag() bool                               { return false }
 func (a *ReplayPath) SetArguments(args []string) error                { return nil }
 func (a *ReplayPath) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *ReplayPath) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *ReplayPath) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = replayPath
 	return nil, a.done
 }
@@ -371,7 +371,7 @@ func (a MyWin) IsBooleanResult() bool                            { return true }
 func (a MyWin) IsStringFlag() bool                               { return false }
 func (a *MyWin) SetArguments(args []string) error                { return nil }
 func (a *MyWin) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	if replay.Computed == nil || replay.Computed.WinnerTeam == 0 {
 		a.result = "unknown"
@@ -404,7 +404,7 @@ func (a MyGame) IsBooleanResult() bool                            { return true 
 func (a MyGame) IsStringFlag() bool                               { return false }
 func (a *MyGame) SetArguments(args []string) error                { return nil }
 func (a *MyGame) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	if playerID := findPlayerID(replay, ctx.Me); playerID == 127 {
 		a.result = "false"
@@ -430,7 +430,7 @@ func (a MapName) IsBooleanResult() bool                            { return fals
 func (a MapName) IsStringFlag() bool                               { return false }
 func (a *MapName) SetArguments(args []string) error                { return nil }
 func (a *MapName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.result = replay.Header.Map
 	a.done = true
 	return nil, a.done
@@ -452,7 +452,7 @@ func (a Matchup) IsBooleanResult() bool                            { return fals
 func (a Matchup) IsStringFlag() bool                               { return false }
 func (a *Matchup) SetArguments(args []string) error                { return nil }
 func (a *Matchup) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *Matchup) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *Matchup) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	if len(replay.Header.Players) == 2 {
 		r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
@@ -485,7 +485,7 @@ func (a MyMatchup) IsBooleanResult() bool                            { return fa
 func (a MyMatchup) IsStringFlag() bool                               { return false }
 func (a *MyMatchup) SetArguments(args []string) error                { return nil }
 func (a *MyMatchup) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyMatchup) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyMatchup) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	playerID := findPlayerID(replay, ctx.Me)
 	if playerID == 127 {
@@ -531,7 +531,7 @@ func (a *MatchupIs) SetArguments(args []string) error {
 	return nil
 }
 func (a *MatchupIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MatchupIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MatchupIs) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	a.result = "false"
 	if len(replay.Header.Players) != 2 {
@@ -574,7 +574,7 @@ func (a *MyMatchupIs) SetArguments(args []string) error {
 	return nil
 }
 func (a *MyMatchupIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
-func (a *MyMatchupIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+func (a *MyMatchupIs) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool) {
 	a.done = true
 	a.result = "false"
 	if len(replay.Header.Players) != 2 {
