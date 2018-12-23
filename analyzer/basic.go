@@ -3,6 +3,8 @@ package analyzer
 import (
 	"fmt"
 	"path"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -479,5 +481,46 @@ func (a *MyMatchup) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, 
 	} else {
 		a.result = replay.Header.Matchup() // TODO put -me player on the left side
 	}
+	return nil, a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type MatchupIs struct {
+	done   bool
+	result string
+	races  []string
+}
+
+func (a MatchupIs) Name() string { return "matchup-is" }
+func (a MatchupIs) Description() string {
+	return "Analyzes if the replay's MatchupIs is equal to the specified one (only works for 1v1 for now)."
+}
+func (a MatchupIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+func (a MatchupIs) IsDone() (string, bool)         { return a.result, a.done }
+func (a MatchupIs) Version() int                   { return 1 }
+func (a MatchupIs) IsBooleanResult() bool          { return true }
+func (a MatchupIs) IsStringFlag() bool             { return true }
+func (a *MatchupIs) SetArguments(args []string) error {
+	if len(args) < 1 || len(args[0]) != 3 {
+		return fmt.Errorf("please provide a valid matchup e.g. TvZ (only works for 1v1 for now)")
+	}
+	args[0] = strings.ToUpper(args[0])
+	a.races = append(a.races, string(args[0][0]), string(args[0][2]))
+	sort.Strings(a.races)
+	return nil
+}
+func (a *MatchupIs) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MatchupIs) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	a.done = true
+	a.result = "false"
+	if len(replay.Header.Players) != 2 {
+		return nil, true
+	}
+	actualRaces := []string{
+		strings.ToUpper(string(replay.Header.Players[0].Race.Letter)),
+		strings.ToUpper(string(replay.Header.Players[1].Race.Letter)),
+	}
+	sort.Strings(actualRaces)
+	a.result = fmt.Sprintf("%v", reflect.DeepEqual(a.races, actualRaces))
 	return nil, a.done
 }
