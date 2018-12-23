@@ -3,12 +3,12 @@ package analyzer
 import (
 	"fmt"
 	"path/filepath"
-	"screp/repparser"
 	"sort"
 	"strings"
 
 	"github.com/icza/screp/rep"
 	"github.com/icza/screp/rep/repcmd"
+	"github.com/icza/screp/repparser"
 )
 
 // An Analyzer is structure code that, given a replay, it determines something
