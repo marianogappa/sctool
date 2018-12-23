@@ -26,6 +26,7 @@ func (a IsThereARace) Description() string {
 func (a IsThereARace) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a IsThereARace) IsDone() (string, bool)         { return a.result, a.done }
 func (a IsThereARace) Version() int                   { return 1 }
+func (a IsThereARace) Clone() Analyzer                { return &IsThereARace{a.done, a.race, a.result} }
 func (a IsThereARace) IsBooleanResult() bool          { return true }
 func (a IsThereARace) IsStringFlag() bool             { return true }
 func (a *IsThereARace) SetArguments(args []string) error {
@@ -62,6 +63,7 @@ func (a MyAPM) Description() string                              { return "Analy
 func (a MyAPM) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyAPM) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyAPM) Version() int                                     { return 1 }
+func (a MyAPM) Clone() Analyzer                                  { return &MyAPM{a.done, a.result} }
 func (a MyAPM) IsBooleanResult() bool                            { return false }
 func (a MyAPM) IsStringFlag() bool                               { return false }
 func (a *MyAPM) SetArguments(args []string) error                { return nil }
@@ -97,6 +99,7 @@ func (a MyRace) Description() string                              { return "Anal
 func (a MyRace) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyRace) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyRace) Version() int                                     { return 1 }
+func (a MyRace) Clone() Analyzer                                  { return &MyRace{a.done, a.result} }
 func (a MyRace) IsBooleanResult() bool                            { return false }
 func (a MyRace) IsStringFlag() bool                               { return false }
 func (a *MyRace) SetArguments(args []string) error                { return nil }
@@ -126,6 +129,7 @@ func (a MyRaceIs) Description() string {
 func (a MyRaceIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a MyRaceIs) IsDone() (string, bool)         { return a.result, a.done }
 func (a MyRaceIs) Version() int                   { return 1 }
+func (a MyRaceIs) Clone() Analyzer                { return &MyRaceIs{a.done, a.result, a.race} }
 func (a MyRaceIs) IsBooleanResult() bool          { return true }
 func (a MyRaceIs) IsStringFlag() bool             { return true }
 func (a *MyRaceIs) SetArguments(args []string) error {
@@ -166,6 +170,7 @@ func (a DateTime) Description() string                              { return "An
 func (a DateTime) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a DateTime) IsDone() (string, bool)                           { return a.result, a.done }
 func (a DateTime) Version() int                                     { return 1 }
+func (a DateTime) Clone() Analyzer                                  { return &DateTime{a.done, a.result} }
 func (a DateTime) IsBooleanResult() bool                            { return false }
 func (a DateTime) IsStringFlag() bool                               { return false }
 func (a *DateTime) SetArguments(args []string) error                { return nil }
@@ -189,6 +194,7 @@ func (a DurationMinutes) Description() string {
 func (a DurationMinutes) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a DurationMinutes) IsDone() (string, bool)                           { return a.result, a.done }
 func (a DurationMinutes) Version() int                                     { return 1 }
+func (a DurationMinutes) Clone() Analyzer                                  { return &DurationMinutes{a.done, a.result} }
 func (a DurationMinutes) IsBooleanResult() bool                            { return false }
 func (a DurationMinutes) IsStringFlag() bool                               { return false }
 func (a *DurationMinutes) SetArguments(args []string) error                { return nil }
@@ -213,8 +219,11 @@ func (a DurationMinutesIsGreaterThan) Description() string {
 func (a DurationMinutesIsGreaterThan) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a DurationMinutesIsGreaterThan) IsDone() (string, bool)         { return a.result, a.done }
 func (a DurationMinutesIsGreaterThan) Version() int                   { return 1 }
-func (a DurationMinutesIsGreaterThan) IsBooleanResult() bool          { return true }
-func (a DurationMinutesIsGreaterThan) IsStringFlag() bool             { return true }
+func (a DurationMinutesIsGreaterThan) Clone() Analyzer {
+	return &DurationMinutesIsGreaterThan{a.done, a.result, a.minutes}
+}
+func (a DurationMinutesIsGreaterThan) IsBooleanResult() bool { return true }
+func (a DurationMinutesIsGreaterThan) IsStringFlag() bool    { return true }
 func (a *DurationMinutesIsGreaterThan) SetArguments(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("please provide a valid number of minutes")
@@ -250,8 +259,11 @@ func (a DurationMinutesIsLowerThan) Description() string {
 func (a DurationMinutesIsLowerThan) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a DurationMinutesIsLowerThan) IsDone() (string, bool)         { return a.result, a.done }
 func (a DurationMinutesIsLowerThan) Version() int                   { return 1 }
-func (a DurationMinutesIsLowerThan) IsBooleanResult() bool          { return true }
-func (a DurationMinutesIsLowerThan) IsStringFlag() bool             { return true }
+func (a DurationMinutesIsLowerThan) Clone() Analyzer {
+	return &DurationMinutesIsLowerThan{a.done, a.result, a.minutes}
+}
+func (a DurationMinutesIsLowerThan) IsBooleanResult() bool { return true }
+func (a DurationMinutesIsLowerThan) IsStringFlag() bool    { return true }
 func (a *DurationMinutesIsLowerThan) SetArguments(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("please provide a valid number of minutes")
@@ -284,6 +296,7 @@ func (a MyName) Description() string                              { return "Anal
 func (a MyName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyName) Version() int                                     { return 1 }
+func (a MyName) Clone() Analyzer                                  { return &MyName{a.done, a.result} }
 func (a MyName) IsBooleanResult() bool                            { return false }
 func (a MyName) IsStringFlag() bool                               { return false }
 func (a *MyName) SetArguments(args []string) error                { return nil }
@@ -310,6 +323,7 @@ func (a ReplayName) Description() string                              { return "
 func (a ReplayName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a ReplayName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a ReplayName) Version() int                                     { return 1 }
+func (a ReplayName) Clone() Analyzer                                  { return &ReplayName{a.done, a.result} }
 func (a ReplayName) IsBooleanResult() bool                            { return false }
 func (a ReplayName) IsStringFlag() bool                               { return false }
 func (a *ReplayName) SetArguments(args []string) error                { return nil }
@@ -331,6 +345,7 @@ func (a ReplayPath) Description() string                              { return "
 func (a ReplayPath) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a ReplayPath) IsDone() (string, bool)                           { return a.result, a.done }
 func (a ReplayPath) Version() int                                     { return 1 }
+func (a ReplayPath) Clone() Analyzer                                  { return &ReplayPath{a.done, a.result} }
 func (a ReplayPath) IsBooleanResult() bool                            { return false }
 func (a ReplayPath) IsStringFlag() bool                               { return false }
 func (a *ReplayPath) SetArguments(args []string) error                { return nil }
@@ -351,6 +366,7 @@ func (a MyWin) Description() string                              { return "Analy
 func (a MyWin) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyWin) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyWin) Version() int                                     { return 1 }
+func (a MyWin) Clone() Analyzer                                  { return &MyWin{a.done, a.result} }
 func (a MyWin) IsBooleanResult() bool                            { return true }
 func (a MyWin) IsStringFlag() bool                               { return false }
 func (a *MyWin) SetArguments(args []string) error                { return nil }
@@ -383,6 +399,7 @@ func (a MyGame) Description() string                              { return "Anal
 func (a MyGame) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyGame) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyGame) Version() int                                     { return 1 }
+func (a MyGame) Clone() Analyzer                                  { return &MyGame{a.done, a.result} }
 func (a MyGame) IsBooleanResult() bool                            { return true }
 func (a MyGame) IsStringFlag() bool                               { return false }
 func (a *MyGame) SetArguments(args []string) error                { return nil }
@@ -408,6 +425,7 @@ func (a MapName) Description() string                              { return "Ana
 func (a MapName) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MapName) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MapName) Version() int                                     { return 1 }
+func (a MapName) Clone() Analyzer                                  { return &MapName{a.done, a.result} }
 func (a MapName) IsBooleanResult() bool                            { return false }
 func (a MapName) IsStringFlag() bool                               { return false }
 func (a *MapName) SetArguments(args []string) error                { return nil }
@@ -429,6 +447,7 @@ func (a Matchup) Description() string                              { return "Ana
 func (a Matchup) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a Matchup) IsDone() (string, bool)                           { return a.result, a.done }
 func (a Matchup) Version() int                                     { return 1 }
+func (a Matchup) Clone() Analyzer                                  { return &Matchup{a.done, a.result} }
 func (a Matchup) IsBooleanResult() bool                            { return false }
 func (a Matchup) IsStringFlag() bool                               { return false }
 func (a *Matchup) SetArguments(args []string) error                { return nil }
@@ -461,6 +480,7 @@ func (a MyMatchup) Description() string {
 func (a MyMatchup) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
 func (a MyMatchup) IsDone() (string, bool)                           { return a.result, a.done }
 func (a MyMatchup) Version() int                                     { return 1 }
+func (a MyMatchup) Clone() Analyzer                                  { return &MyMatchup{a.done, a.result} }
 func (a MyMatchup) IsBooleanResult() bool                            { return false }
 func (a MyMatchup) IsStringFlag() bool                               { return false }
 func (a *MyMatchup) SetArguments(args []string) error                { return nil }
@@ -498,6 +518,7 @@ func (a MatchupIs) Description() string {
 func (a MatchupIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a MatchupIs) IsDone() (string, bool)         { return a.result, a.done }
 func (a MatchupIs) Version() int                   { return 1 }
+func (a MatchupIs) Clone() Analyzer                { return &MatchupIs{a.done, a.result, cloneStringSlice(a.races)} }
 func (a MatchupIs) IsBooleanResult() bool          { return true }
 func (a MatchupIs) IsStringFlag() bool             { return true }
 func (a *MatchupIs) SetArguments(args []string) error {
@@ -539,8 +560,11 @@ func (a MyMatchupIs) Description() string {
 func (a MyMatchupIs) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a MyMatchupIs) IsDone() (string, bool)         { return a.result, a.done }
 func (a MyMatchupIs) Version() int                   { return 1 }
-func (a MyMatchupIs) IsBooleanResult() bool          { return true }
-func (a MyMatchupIs) IsStringFlag() bool             { return true }
+func (a MyMatchupIs) Clone() Analyzer {
+	return &MyMatchupIs{a.done, a.result, cloneStringSlice(a.races)}
+}
+func (a MyMatchupIs) IsBooleanResult() bool { return true }
+func (a MyMatchupIs) IsStringFlag() bool    { return true }
 func (a *MyMatchupIs) SetArguments(args []string) error {
 	if len(args) < 1 || len(args[0]) != 3 {
 		return fmt.Errorf("please provide a valid matchup e.g. TvZ (only works for 1v1 for now)")

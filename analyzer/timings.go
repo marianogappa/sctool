@@ -22,8 +22,11 @@ func (a MyFirstSpecificUnitSeconds) Description() string {
 func (a MyFirstSpecificUnitSeconds) DependsOn() map[string]struct{} { return map[string]struct{}{} }
 func (a MyFirstSpecificUnitSeconds) IsDone() (string, bool)         { return a.result, a.done }
 func (a MyFirstSpecificUnitSeconds) Version() int                   { return 1 }
-func (a MyFirstSpecificUnitSeconds) IsBooleanResult() bool          { return false }
-func (a MyFirstSpecificUnitSeconds) IsStringFlag() bool             { return true }
+func (a MyFirstSpecificUnitSeconds) Clone() Analyzer {
+	return &MyFirstSpecificUnitSeconds{a.done, a.result, a.playerID, a.unitID}
+}
+func (a MyFirstSpecificUnitSeconds) IsBooleanResult() bool { return false }
+func (a MyFirstSpecificUnitSeconds) IsStringFlag() bool    { return true }
 func (a *MyFirstSpecificUnitSeconds) SetArguments(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("please provide a valid unit/building/evolution name e.g. Zergling") // TODO provide list
