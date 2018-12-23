@@ -88,7 +88,6 @@ var Analyzers = map[string]Analyzer{
 	(&MyMatchup{}).Name():                    &MyMatchup{},
 	(&MatchupIs{}).Name():                    &MatchupIs{},
 	(&MyMatchupIs{}).Name():                  &MyMatchupIs{},
-	// TODO MatchupIs
 	// TODO Is1v1
 	// TODO Is2v2
 	// TODO MyBOIs9Pool
