@@ -70,11 +70,9 @@ func (a *MyAPM) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, repl
 		a.done = true
 		return nil, true
 	}
-	var playerID byte
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			playerID = p.ID
-		}
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
 	}
 	for _, pDesc := range replay.Computed.PlayerDescs {
 		if pDesc.PlayerID == playerID {
