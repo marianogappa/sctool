@@ -126,6 +126,7 @@ func NewAnalyzerExecutor(replayPaths []string, analyzerRequests [][]string, ctx 
 	)
 	ae.replayPaths, rpErrs = ae.filterReplayPaths(replayPaths)
 	ae.analyzerWrappers, aeErrs = ae.createSortedAnalyzerWrappers(analyzerRequests)
+	ae.ctx = ctx
 	ae.output = output
 	if ae.output == nil {
 		ae.output = NewNoOutput()
@@ -274,7 +275,7 @@ type analyzerWrapper struct {
 }
 
 func (w analyzerWrapper) less(w2 analyzerWrapper) bool {
-	return ((w.isFilter || w.isFilterNot) && !w2.isFilter && w2.isFilterNot) ||
+	return ((w.isFilter || w.isFilterNot) && !w2.isFilter && !w2.isFilterNot) ||
 		(((w.isFilter || w.isFilterNot) == (w2.isFilter || w2.isFilterNot)) && w.analyzer.Name() < w2.analyzer.Name())
 }
 

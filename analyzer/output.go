@@ -29,17 +29,23 @@ func NewCSVOutput(w io.Writer) *CSVOutput {
 }
 
 func (o *CSVOutput) Pre(analyzerWrappers []analyzerWrapper) error {
+	o.analyzerWrappers = analyzerWrappers
 	fieldDisplayNames := []string{}
 	for _, wrapper := range analyzerWrappers {
 		if !wrapper.isFilter && !wrapper.isFilterNot {
 			fieldDisplayNames = append(fieldDisplayNames, wrapper.displayName)
 		}
 	}
-	o.analyzerWrappers = analyzerWrappers
 	return o.w.Write(fieldDisplayNames)
 }
 
-func (o *CSVOutput) ReplayResults(results []string) error {
+func (o *CSVOutput) ReplayResults(_results []string) error {
+	results := []string{}
+	for i, r := range _results {
+		if !o.analyzerWrappers[i].isFilter || !o.analyzerWrappers[i].isFilterNot {
+			results = append(results, r)
+		}
+	}
 	return o.w.Write(results)
 }
 
@@ -62,9 +68,7 @@ func NewJSONOutput(w io.Writer) *JSONOutput {
 func (o *JSONOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 	o.analyzerWrappers = analyzerWrappers
 	for _, wrapper := range analyzerWrappers {
-		if !wrapper.isFilter && !wrapper.isFilterNot {
-			o.fieldDisplayNames = append(o.fieldDisplayNames, wrapper.displayName)
-		}
+		o.fieldDisplayNames = append(o.fieldDisplayNames, wrapper.displayName)
 	}
 	if _, err := o.w.Write([]byte("[\n")); err != nil {
 		return err
@@ -80,7 +84,9 @@ func (o *JSONOutput) ReplayResults(_results []string) error {
 	}
 	results := map[string]string{}
 	for i, result := range _results {
-		results[o.fieldDisplayNames[i]] = result
+		if !o.analyzerWrappers[i].isFilter && !o.analyzerWrappers[i].isFilterNot {
+			results[o.fieldDisplayNames[i]] = result
+		}
 	}
 	bs, err := json.Marshal(results) // TODO improvement: map traversal
 	if err != nil {
@@ -89,15 +95,12 @@ func (o *JSONOutput) ReplayResults(_results []string) error {
 	if _, err := o.w.Write(bs); err != nil {
 		return err
 	}
-	if _, err := o.w.Write([]byte("\n")); err != nil {
-		return err
-	}
 	o.firstJSONRow = false
 	return nil
 }
 
 func (o *JSONOutput) Post() error {
-	if _, err := o.w.Write([]byte("]\n")); err != nil {
+	if _, err := o.w.Write([]byte("\n]\n")); err != nil {
 		return err
 	}
 	return nil
