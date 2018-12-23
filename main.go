@@ -34,7 +34,8 @@ func main() {
 			(&analyzer.MyGame{}).Name():                       &analyzer.MyGame{},
 			(&analyzer.MapName{}).Name():                      &analyzer.MapName{},
 			(&analyzer.MyFirstSpecificUnitSeconds{}).Name():   &analyzer.MyFirstSpecificUnitSeconds{},
-			// TODO Matchup
+			(&analyzer.Matchup{}).Name():                      &analyzer.Matchup{},
+			(&analyzer.MyMatchup{}).Name():                    &analyzer.MyMatchup{},
 			// TODO MatchupIs
 			// TODO Is1v1
 			// TODO Is2v2

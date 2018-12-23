@@ -288,17 +288,12 @@ func (a *MyName) SetArguments(args []string) error                { return nil }
 func (a *MyName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
 func (a *MyName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = ""
-	if replay.Computed == nil {
-		a.done = true
-		return nil, true
+	a.done = true
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
 	}
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = p.Name
-			a.done = true
-			break
-		}
-	}
+	a.result = replay.Header.PIDPlayers[playerID].Name
 	return nil, a.done
 }
 
@@ -359,19 +354,19 @@ func (a MyWin) IsStringFlag() bool                               { return false 
 func (a *MyWin) SetArguments(args []string) error                { return nil }
 func (a *MyWin) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
 func (a *MyWin) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	a.done = true
 	if replay.Computed == nil || replay.Computed.WinnerTeam == 0 {
 		a.result = "unknown"
-		a.done = true
 		return nil, true
 	}
 	a.result = "false"
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok && p.Team == replay.Computed.WinnerTeam {
-			a.result = "true"
-			break
-		}
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
 	}
-	a.done = true
+	if replay.Header.PIDPlayers[playerID].Team == replay.Computed.WinnerTeam {
+		a.result = "true"
+	}
 	return nil, a.done
 }
 
@@ -391,14 +386,12 @@ func (a MyGame) IsStringFlag() bool                               { return false
 func (a *MyGame) SetArguments(args []string) error                { return nil }
 func (a *MyGame) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
 func (a *MyGame) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
-	a.result = "false"
-	for _, p := range replay.Header.Players {
-		if _, ok := ctx.Me[p.Name]; ok {
-			a.result = "true"
-			break
-		}
-	}
 	a.done = true
+	if playerID := findPlayerID(replay, ctx.Me); playerID == 127 {
+		a.result = "false"
+		return nil, true
+	}
+	a.result = "true"
 	return nil, a.done
 }
 
@@ -420,5 +413,71 @@ func (a *MapName) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil,
 func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
 	a.result = replay.Header.Map
 	a.done = true
+	return nil, a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type Matchup struct {
+	done   bool
+	result string
+}
+
+func (a Matchup) Name() string                                     { return "matchup" }
+func (a Matchup) Description() string                              { return "Analyzes the replay's matchup." }
+func (a Matchup) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a Matchup) IsDone() (string, bool)                           { return a.result, a.done }
+func (a Matchup) Version() int                                     { return 1 }
+func (a Matchup) IsBooleanResult() bool                            { return false }
+func (a Matchup) IsStringFlag() bool                               { return false }
+func (a *Matchup) SetArguments(args []string) error                { return nil }
+func (a *Matchup) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *Matchup) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	a.done = true
+	if len(replay.Header.Players) == 2 {
+		r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
+		r1 := strings.ToUpper(string(replay.Header.Players[1].Race.Letter))
+		a.result = r0 + "v" + r1
+		if r0 > r1 {
+			a.result = r1 + "v" + r0
+		}
+	} else {
+		a.result = replay.Header.Matchup()
+	}
+	return nil, a.done
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+type MyMatchup struct {
+	done   bool
+	result string
+}
+
+func (a MyMatchup) Name() string { return "my-matchup" }
+func (a MyMatchup) Description() string {
+	return "Analyzes the replay's matchup from the point of view of the -me player"
+}
+func (a MyMatchup) DependsOn() map[string]struct{}                   { return map[string]struct{}{} }
+func (a MyMatchup) IsDone() (string, bool)                           { return a.result, a.done }
+func (a MyMatchup) Version() int                                     { return 1 }
+func (a MyMatchup) IsBooleanResult() bool                            { return false }
+func (a MyMatchup) IsStringFlag() bool                               { return false }
+func (a *MyMatchup) SetArguments(args []string) error                { return nil }
+func (a *MyMatchup) ProcessCommand(command repcmd.Cmd) (error, bool) { return nil, true }
+func (a *MyMatchup) StartReadingReplay(replay *rep.Replay, ctx AnalyzerContext, replayPath string) (error, bool) {
+	a.done = true
+	playerID := findPlayerID(replay, ctx.Me)
+	if playerID == 127 {
+		return fmt.Errorf("-me player not present in this replay"), true
+	}
+	if len(replay.Header.Players) == 2 {
+		r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
+		r1 := strings.ToUpper(string(replay.Header.Players[1].Race.Letter))
+		a.result = r0 + "v" + r1
+		if playerID == 1 {
+			a.result = r1 + "v" + r0
+		}
+	} else {
+		a.result = replay.Header.Matchup() // TODO put -me player on the left side
+	}
 	return nil, a.done
 }
