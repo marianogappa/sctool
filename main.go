@@ -22,6 +22,7 @@ func main() {
 		fCopyToIfMatchesFilters = flag.String("copy-to-if-matches-filters", "",
 			"copy replay files matched by -filter-- and not matched by -filter--not-- filters to specified directory")
 		fQuiet = flag.Bool("quiet", false, "don't print any errors (discouraged: note that you can silence with 2>/dev/null).")
+		fHelp  = flag.Bool("help", false, "Returns help usage and exits.")
 	)
 	for name, a := range analyzer.Analyzers {
 		if a.IsStringFlag() {
@@ -39,6 +40,10 @@ func main() {
 		}
 	}
 	flag.Parse()
+	if *fHelp {
+		flag.Usage()
+		os.Exit(0)
+	}
 
 	ctx := analyzer.Context{Me: map[string]struct{}{}}
 	if fMe != nil && len(*fMe) > 0 {
@@ -66,7 +71,7 @@ func main() {
 		}
 	}
 
-	executor, errs := analyzer.NewAnalyzerExecutor(replayPaths, analyzerRequests, ctx, output, *fCopyToIfMatchesFilters)
+	executor, errs := analyzer.NewExecutor(replayPaths, analyzerRequests, ctx, output, *fCopyToIfMatchesFilters)
 	if len(errs) > 0 {
 		if !*fQuiet {
 			log.Println("Errors encountered while preparing to execute analyzers:")

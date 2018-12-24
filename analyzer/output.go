@@ -6,28 +6,43 @@ import (
 	"io"
 )
 
+// Output is an interface for outputting the results of Analyzers. Some implementations are:
+// CSVOutput: outputs results in CSV format with header.
+// JSONOutput: outputs results in JSON format as an array of objects.
+// NoOutput: swallows output. Usually used together with AnalyzerExecutor.ExecuteWithResults().
 type Output interface {
 	Pre(analyzerWrappers []analyzerWrapper) error
 	ReplayResults(results []string) error
 	Post() error
 }
 
+// NoOutput swallows output. Usually used together with AnalyzerExecutor.ExecuteWithResults().
 type NoOutput struct{}
 
-func NewNoOutput() *NoOutput                                     { return &NoOutput{} }
-func (o *NoOutput) Pre(analyzerWrappers []analyzerWrapper) error { return nil }
-func (o *NoOutput) ReplayResults(results []string) error         { return nil }
-func (o *NoOutput) Post() error                                  { return nil }
+// NewNoOutput is the NoOutput constructor.
+func NewNoOutput() *NoOutput { return &NoOutput{} }
 
+// Pre runs at the beginning of the replay analyzing cycle.
+func (o *NoOutput) Pre(analyzerWrappers []analyzerWrapper) error { return nil }
+
+// ReplayResults runs at each replay result cycle.
+func (o *NoOutput) ReplayResults(results []string) error { return nil }
+
+// Post runs at the end of the replay analyzing cycle.
+func (o *NoOutput) Post() error { return nil }
+
+// CSVOutput outputs results in CSV format with header.
 type CSVOutput struct {
 	w                *csv.Writer
 	analyzerWrappers []analyzerWrapper
 }
 
+// NewCSVOutput is the CSVOutput constructor.
 func NewCSVOutput(w io.Writer) *CSVOutput {
 	return &CSVOutput{csv.NewWriter(w), nil}
 }
 
+// Pre runs at the beginning of the replay analyzing cycle.
 func (o *CSVOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 	o.analyzerWrappers = analyzerWrappers
 	fieldDisplayNames := []string{}
@@ -39,6 +54,7 @@ func (o *CSVOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 	return o.w.Write(fieldDisplayNames)
 }
 
+// ReplayResults runs at each replay result cycle.
 func (o *CSVOutput) ReplayResults(_results []string) error {
 	results := []string{}
 	for i, r := range _results {
@@ -49,11 +65,13 @@ func (o *CSVOutput) ReplayResults(_results []string) error {
 	return o.w.Write(results)
 }
 
+// Post runs at the end of the replay analyzing cycle.
 func (o *CSVOutput) Post() error {
 	o.w.Flush()
 	return o.w.Error()
 }
 
+// JSONOutput outputs results in JSON format as an array of objects.
 type JSONOutput struct {
 	w                 io.Writer
 	firstJSONRow      bool
@@ -61,10 +79,12 @@ type JSONOutput struct {
 	fieldDisplayNames []string
 }
 
+// NewJSONOutput is the JSONOutput constructor.
 func NewJSONOutput(w io.Writer) *JSONOutput {
 	return &JSONOutput{w, true, nil, nil}
 }
 
+// Pre runs at the beginning of the replay analyzing cycle.
 func (o *JSONOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 	o.analyzerWrappers = analyzerWrappers
 	for _, wrapper := range analyzerWrappers {
@@ -76,6 +96,7 @@ func (o *JSONOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 	return nil
 }
 
+// ReplayResults runs at each replay result cycle.
 func (o *JSONOutput) ReplayResults(_results []string) error {
 	if !o.firstJSONRow {
 		if _, err := o.w.Write([]byte(",\n")); err != nil {
@@ -99,6 +120,7 @@ func (o *JSONOutput) ReplayResults(_results []string) error {
 	return nil
 }
 
+// Post runs at the end of the replay analyzing cycle.
 func (o *JSONOutput) Post() error {
 	if _, err := o.w.Write([]byte("\n]\n")); err != nil {
 		return err

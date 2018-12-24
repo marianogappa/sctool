@@ -16,58 +16,60 @@ import (
 // An example would be an Analyzer that answers if the game is a 1v1, or
 // if a player did a 5rax BO.
 type Analyzer interface {
-	// Analyzer name: used for DependsOn() and as argument to CLI, so must be
+	// Name is used for DependsOn() and as argument to CLI, so must be
 	// hyphenated and without spaces or special characters.
 	Name() string
 
-	// Human readable description for what the analyzer is useful for. Used
+	// Description is a human readable description for what the analyzer is useful for. Used
 	// in command line usage help.
 	Description() string
 
-	// Arguments for running: should be called before StartReadingReplay().
+	// SetArguments for running: should be called before StartReadingReplay().
 	// It may error, signaling that this Analyzer should not be used, and an error
 	// should be shown to the client, but execution of the rest may continue.
 	SetArguments(args []string) error
 
-	// Analyzer Name's whose Results this Analyzer depends on: for building DAG.
+	// DependsOn are the Analyzer Name's whose Results this Analyzer depends on: for building DAG.
 	DependsOn() map[string]struct{}
 
-	// Called at the beginning of a Replay analizing cycle.
+	// StartReadingReplay is called at the beginning of a Replay analyzing cycle.
 	// Should not read anything from Commands; use ProcessCommand for that.
 	// Returns true if the analyzer is finished calculating the result (i.e. no need
 	// to process commands)
 	// It may error, signaling that this Analyzer should no longer be used, and an error
 	// should be shown to the client, but execution of the rest may continue.
-	StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (error, bool)
+	StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (bool, error)
 
-	// Should be called for every command during a Replay analizing cycle.
+	// ProcessCommand should be called for every command during a Replay analizing cycle.
 	// StartReadingReplay should be called before processing any command, to refresh
 	// any state and to decide if processing commands are necessary to determine result.
 	// Returns true if the analyzer is finished calculating the result (i.e. no need
 	// to process further commands).
 	// It may error, signaling that this Analyzer should no longer be used, and an error
 	// should be shown to the client, but execution of the rest may continue.
-	ProcessCommand(command repcmd.Cmd) (error, bool)
+	ProcessCommand(command repcmd.Cmd) (bool, error)
 
-	// Returns true if the analyzer is finished calculating the result, and
+	// IsDone Returns true if the analyzer is finished calculating the result, and
 	// returns it. Shouldn't be called before calling StartReadingReplay.
 	IsDone() (string, bool)
 
-	// Useful for managing updates to an Analyzer: whenever an update is made to an
+	// Version is useful for managing updates to an Analyzer: whenever an update is made to an
 	// analyzer, the Version should be numerically higher. Then, if there's a cached
 	// Result of an Analyzer on a Replay, the result should be recomputed.
 	Version() int
 
-	// Determines the type of the CLI flag. It can either be Bool (default) or String.
+	// IsStringFlag determines the type of the CLI flag. It can either be Bool (default) or String.
 	IsStringFlag() bool
 
-	// Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not-- flags.
+	// IsBooleanResult Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not--
+	// flags.
 	IsBooleanResult() bool
 
-	// Convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
+	// Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 	Clone() Analyzer
 }
 
+// Analyzers are all implemented replay analyzers. Must not be modified!
 var Analyzers = map[string]Analyzer{
 	(&MyAPM{}).Name():                        &MyAPM{},
 	(&MyRace{}).Name():                       &MyRace{},
@@ -105,11 +107,15 @@ type Context struct {
 	Me map[string]struct{}
 }
 
+// NewContext creates an Analyzer Context. Context should be everything unrelated to a replay that an Analyzer should
+// know in order to analyze a replay e.g. who is the -me player
 func NewContext(me map[string]struct{}) Context {
 	return Context{me}
 }
 
-type AnalyzerExecutor struct {
+// Executor is the main struct the client should interact with: it receives a list of replays and analyzer
+// requests, and executes the analyzers on the replays.
+type Executor struct {
 	replayPaths                []string
 	analyzerWrappers           []analyzerWrapper
 	ctx                        Context
@@ -118,10 +124,13 @@ type AnalyzerExecutor struct {
 	shouldCopyToOutputLocation bool
 }
 
-func NewAnalyzerExecutor(replayPaths []string, analyzerRequests [][]string, ctx Context, output Output, copyPath string) (*AnalyzerExecutor, []error) {
+// NewExecutor should be the entrypoint of this library to the client. It creates an Executor.
+// It may return several errors: replay paths may not exist, analyzer requests may be for unknown analyzers,
+// copy path may not exist, etc.
+func NewExecutor(replayPaths []string, analyzerRequests [][]string, ctx Context, output Output, copyPath string) (*Executor, []error) {
 	var (
 		errs, rpErrs, aeErrs []error
-		ae                   = &AnalyzerExecutor{}
+		ae                   = &Executor{}
 	)
 	ae.replayPaths, rpErrs = ae.filterReplayPaths(replayPaths)
 	ae.analyzerWrappers, aeErrs = ae.createSortedAnalyzerWrappers(analyzerRequests)
@@ -148,17 +157,28 @@ func NewAnalyzerExecutor(replayPaths []string, analyzerRequests [][]string, ctx 
 	return ae, errs
 }
 
-func (e *AnalyzerExecutor) Execute() []error {
+// Execute executes the given Analyzers on the given replays. Use this method if you want JSON/CSV output onto a file
+// or Stdout. If you're using the library and want to work with the results programatically, use ExecuteWithResults
+// instead.
+// Execute may fail for a number of reasons, but the failures may be isolated to a replay or even a single analyzer,
+// so it doesn't necessarily mean that the complete result is unusable.
+func (e *Executor) Execute() []error {
 	_, errs := e.execute(false)
 	return errs
 }
 
-func (e *AnalyzerExecutor) ExecuteWithResults() ([][]string, []error) {
+// ExecuteWithResults executes the given Analyzers on the given replays and returns all results. Use this method if you
+// want to work with the results programatically; otherwise use Execute instead.
+// ExecuteWithResults may fail for a number of reasons, but the failures may be isolated to a replay or even a single
+// analyzer, so it doesn't necessarily mean that the complete result is unusable.
+// Usually, when using this method, the Executor's output should be NoOutput, since the results are
+// available in the return value of this method.
+func (e *Executor) ExecuteWithResults() ([][]string, []error) {
 	results, errs := e.execute(false)
 	return results, errs
 }
 
-func (e *AnalyzerExecutor) execute(saveResults bool) ([][]string, []error) {
+func (e *Executor) execute(saveResults bool) ([][]string, []error) {
 	var (
 		results [][]string
 		errs    []error
@@ -195,7 +215,7 @@ func (e *AnalyzerExecutor) execute(saveResults bool) ([][]string, []error) {
 	return results, errs
 }
 
-func (e AnalyzerExecutor) executeReplay(r *rep.Replay, replayPath string, analyzerWrappers []analyzerWrapper) ([]string, []error) {
+func (e Executor) executeReplay(r *rep.Replay, replayPath string, analyzerWrappers []analyzerWrapper) ([]string, []error) {
 	var (
 		results      = make([]string, len(analyzerWrappers))
 		errs         = []error{}
@@ -204,7 +224,7 @@ func (e AnalyzerExecutor) executeReplay(r *rep.Replay, replayPath string, analyz
 
 	// Analyze everything except Commands; try to finish early
 	for i, aw := range analyzerWrappers {
-		err, done := aw.analyzer.StartReadingReplay(r, e.ctx, replayPath)
+		done, err := aw.analyzer.StartReadingReplay(r, e.ctx, replayPath)
 		if err != nil {
 			errs = append(errs,
 				fmt.Errorf("error beginning to read replay %v with Analyzer %v: %v", replayPath,
@@ -231,7 +251,7 @@ func (e AnalyzerExecutor) executeReplay(r *rep.Replay, replayPath string, analyz
 			if aw.removed {
 				continue
 			}
-			err, done := aw.analyzer.ProcessCommand(c)
+			done, err := aw.analyzer.ProcessCommand(c)
 			if err != nil {
 				errs = append(errs,
 					fmt.Errorf("error reading command on replay %v with Analyzer %v: %v",
@@ -252,7 +272,7 @@ func (e AnalyzerExecutor) executeReplay(r *rep.Replay, replayPath string, analyz
 	return results, errs
 }
 
-func (e AnalyzerExecutor) parseReplayFile(replayPath string) (*rep.Replay, error) {
+func (e Executor) parseReplayFile(replayPath string) (*rep.Replay, error) {
 	r, err := repparser.ParseFile(replayPath)
 	if err != nil {
 		return nil, fmt.Errorf("screp failed to parse replay %v: %v", replayPath, err)
@@ -282,7 +302,7 @@ func (w analyzerWrapper) clone() analyzerWrapper {
 	return analyzerWrapper{w.analyzer.Clone(), w.isFilter, w.isFilterNot, w.displayName, w.name, w.pos, false}
 }
 
-func (e AnalyzerExecutor) createSortedAnalyzerWrappers(analyzerRequests [][]string) ([]analyzerWrapper, []error) {
+func (e Executor) createSortedAnalyzerWrappers(analyzerRequests [][]string) ([]analyzerWrapper, []error) {
 	var (
 		analyzerWrappers = []analyzerWrapper{}
 		errs             = []error{}
@@ -330,7 +350,7 @@ func (e AnalyzerExecutor) createSortedAnalyzerWrappers(analyzerRequests [][]stri
 	return analyzerWrappers, errs
 }
 
-func (e AnalyzerExecutor) filterReplayPaths(replayPaths []string) (paths []string, errs []error) {
+func (e Executor) filterReplayPaths(replayPaths []string) (paths []string, errs []error) {
 	var m = make(map[string]struct{}, len(replayPaths))
 	for _, r := range replayPaths { // Trim and unique
 		m[strings.TrimSpace(r)] = struct{}{}
@@ -352,7 +372,7 @@ func (e AnalyzerExecutor) filterReplayPaths(replayPaths []string) (paths []strin
 	return
 }
 
-func (e AnalyzerExecutor) cloneAnalyzerWrappers() (as []analyzerWrapper) {
+func (e Executor) cloneAnalyzerWrappers() (as []analyzerWrapper) {
 	for _, analyzerWrapper := range e.analyzerWrappers {
 		as = append(as, analyzerWrapper.clone())
 	}
