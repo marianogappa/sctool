@@ -795,3 +795,142 @@ func (a *MapName) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath
 	a.done = true
 	return a.done, nil
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+
+// Is1v1 is true if the replay is of an 1v1 match
+type Is1v1 struct {
+	done   bool
+	result string
+}
+
+// Name is used for DependsOn() and as argument to CLI, so must be
+// hyphenated and without spaces or special characters.
+func (a Is1v1) Name() string { return "is-1v1" }
+
+// Description is a human readable description for what the analyzer is useful for. Used
+// in command line usage help.
+func (a Is1v1) Description() string { return "Analyzes if the replay is of an 1v1 match." }
+
+// DependsOn is used to determine the Analyzer dependecy DAG
+// DependsOn are the Analyzer Name's whose Results this Analyzer depends on: for building DAG.
+func (a Is1v1) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+
+// IsDone Returns true if the analyzer is finished calculating the result, and
+// returns it. Shouldn't be called before calling StartReadingReplay.
+func (a Is1v1) IsDone() (string, bool) { return a.result, a.done }
+
+// Version is useful for managing updates to an Analyzer: whenever an update is made to an
+// analyzer, the Version should be numerically higher. Then, if there's a cached
+// Result of an Analyzer on a Replay, the result should be recomputed.
+func (a Is1v1) Version() int { return 1 }
+
+// Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
+func (a Is1v1) Clone() Analyzer { return &Is1v1{a.done, a.result} }
+
+// IsBooleanResult Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not--
+// flags.
+func (a Is1v1) IsBooleanResult() bool { return true }
+
+// IsStringFlag determines the type of the CLI flag. It can either be Bool (default) or String.
+func (a Is1v1) IsStringFlag() bool { return false }
+
+// SetArguments for running: should be called before StartReadingReplay().
+// It may error, signaling that this Analyzer should not be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is1v1) SetArguments(args []string) error { return nil }
+
+// ProcessCommand should be called for every command during a Replay analizing cycle.
+// StartReadingReplay should be called before processing any command, to refresh
+// any state and to decide if processing commands are necessary to determine result.
+// Returns true if the analyzer is finished calculating the result (i.e. no need
+// to process further commands).
+// It may error, signaling that this Analyzer should no longer be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is1v1) ProcessCommand(command repcmd.Cmd) (bool, error) { return true, nil }
+
+// StartReadingReplay is called at the beginning of a Replay analyzing cycle.
+// Should not read anything from Commands; use ProcessCommand for that.
+// Returns true if the analyzer is finished calculating the result (i.e. no need
+// to process commands)
+// It may error, signaling that this Analyzer should no longer be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is1v1) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (bool, error) {
+	a.result = "false"
+	a.done = true
+	if len(replay.Header.Players) == 2 && replay.Header.Players[0].Team != replay.Header.Players[1].Team {
+		a.result = "true"
+	}
+	return a.done, nil
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+
+// Is2v2 is true if the replay is of a 2v2 match
+type Is2v2 struct {
+	done   bool
+	result string
+}
+
+// Name is used for DependsOn() and as argument to CLI, so must be
+// hyphenated and without spaces or special characters.
+func (a Is2v2) Name() string { return "is-2v2" }
+
+// Description is a human readable description for what the analyzer is useful for. Used
+// in command line usage help.
+func (a Is2v2) Description() string { return "Analyzes if the replay is of a 2v2 match." }
+
+// DependsOn is used to determine the Analyzer dependecy DAG
+// DependsOn are the Analyzer Name's whose Results this Analyzer depends on: for building DAG.
+func (a Is2v2) DependsOn() map[string]struct{} { return map[string]struct{}{} }
+
+// IsDone Returns true if the analyzer is finished calculating the result, and
+// returns it. Shouldn't be called before calling StartReadingReplay.
+func (a Is2v2) IsDone() (string, bool) { return a.result, a.done }
+
+// Version is useful for managing updates to an Analyzer: whenever an update is made to an
+// analyzer, the Version should be numerically higher. Then, if there's a cached
+// Result of an Analyzer on a Replay, the result should be recomputed.
+func (a Is2v2) Version() int { return 1 }
+
+// Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
+func (a Is2v2) Clone() Analyzer { return &Is2v2{a.done, a.result} }
+
+// IsBooleanResult Determines if the result type is "true"/"false". Used for providing -filter-- and -filter-not--
+// flags.
+func (a Is2v2) IsBooleanResult() bool { return true }
+
+// IsStringFlag determines the type of the CLI flag. It can either be Bool (default) or String.
+func (a Is2v2) IsStringFlag() bool { return false }
+
+// SetArguments for running: should be called before StartReadingReplay().
+// It may error, signaling that this Analyzer should not be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is2v2) SetArguments(args []string) error { return nil }
+
+// ProcessCommand should be called for every command during a Replay analizing cycle.
+// StartReadingReplay should be called before processing any command, to refresh
+// any state and to decide if processing commands are necessary to determine result.
+// Returns true if the analyzer is finished calculating the result (i.e. no need
+// to process further commands).
+// It may error, signaling that this Analyzer should no longer be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is2v2) ProcessCommand(command repcmd.Cmd) (bool, error) { return true, nil }
+
+// StartReadingReplay is called at the beginning of a Replay analyzing cycle.
+// Should not read anything from Commands; use ProcessCommand for that.
+// Returns true if the analyzer is finished calculating the result (i.e. no need
+// to process commands)
+// It may error, signaling that this Analyzer should no longer be used, and an error
+// should be shown to the client, but execution of the rest may continue.
+func (a *Is2v2) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (bool, error) {
+	a.result = "false"
+	a.done = true
+	// Note that, according to screp docs: "Players contains the actual ("real") players of the game in team order."
+	if len(replay.Header.Players) == 4 && replay.Header.Players[0].Team == replay.Header.Players[1].Team &&
+		replay.Header.Players[1].Team != replay.Header.Players[2].Team &&
+		replay.Header.Players[2].Team == replay.Header.Players[3].Team {
+		a.result = "true"
+	}
+	return a.done, nil
+}

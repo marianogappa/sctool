@@ -90,8 +90,8 @@ var Analyzers = map[string]Analyzer{
 	(&MyMatchup{}).Name():                    &MyMatchup{},
 	(&MatchupIs{}).Name():                    &MatchupIs{},
 	(&MyMatchupIs{}).Name():                  &MyMatchupIs{},
-	// TODO Is1v1
-	// TODO Is2v2
+	(&Is1v1{}).Name():                        &Is1v1{},
+	(&Is2v2{}).Name():                        &Is2v2{},
 	// TODO MyBOIs9Pool
 	// TODO MyBOIs12Pool
 	// TODO MyBOIsOverpool
@@ -100,6 +100,7 @@ var Analyzers = map[string]Analyzer{
 	// TODO MyBOIs2HatchBeforePool
 	// TODO MyBOIs1-1-1
 	// TODO MyBOIs2HatchSpire
+	// TODO IsTopVsBottomOrOneOnOneOrMelee
 }
 
 // Context is all context necessary for analyzers to properly analyze a replay
