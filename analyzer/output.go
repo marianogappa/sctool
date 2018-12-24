@@ -57,9 +57,9 @@ func (o *CSVOutput) Pre(analyzerWrappers []analyzerWrapper) error {
 // ReplayResults runs at each replay result cycle.
 func (o *CSVOutput) ReplayResults(_results []string) error {
 	results := []string{}
-	for i, r := range _results {
-		if !o.analyzerWrappers[i].isFilter || !o.analyzerWrappers[i].isFilterNot {
-			results = append(results, r)
+	for i, wrapper := range o.analyzerWrappers {
+		if !wrapper.isFilter && !wrapper.isFilterNot {
+			results = append(results, _results[i])
 		}
 	}
 	return o.w.Write(results)

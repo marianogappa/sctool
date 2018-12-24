@@ -11,7 +11,7 @@ import (
 	"github.com/icza/screp/repparser"
 )
 
-// An Analyzer is structure code that, given a replay, it determines something
+// An Analyzer is structured code that, given a replay, it determines something
 // about it. It is optimized for modularity, extensibility and performance.
 // An example would be an Analyzer that answers if the game is a 1v1, or
 // if a player did a 5rax BO.
@@ -73,40 +73,6 @@ type Analyzer interface {
 
 	// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
 	RequiresParsingMapData() bool
-}
-
-// Analyzers are all implemented replay analyzers. Must not be modified!
-var Analyzers = map[string]Analyzer{
-	(&MyAPM{}).Name():                        &MyAPM{},
-	(&MyRace{}).Name():                       &MyRace{},
-	(&DateTime{}).Name():                     &DateTime{},
-	(&DurationMinutes{}).Name():              &DurationMinutes{},
-	(&DurationMinutesIsGreaterThan{}).Name(): &DurationMinutesIsGreaterThan{},
-	(&DurationMinutesIsLowerThan{}).Name():   &DurationMinutesIsLowerThan{},
-	(&MyName{}).Name():                       &MyName{},
-	(&IsThereARace{}).Name():                 &IsThereARace{},
-	(&MyRaceIs{}).Name():                     &MyRaceIs{},
-	(&ReplayName{}).Name():                   &ReplayName{},
-	(&ReplayPath{}).Name():                   &ReplayPath{},
-	(&MyWin{}).Name():                        &MyWin{},
-	(&MyGame{}).Name():                       &MyGame{},
-	(&MapName{}).Name():                      &MapName{},
-	(&MyFirstSpecificUnitSeconds{}).Name():   &MyFirstSpecificUnitSeconds{},
-	(&Matchup{}).Name():                      &Matchup{},
-	(&MyMatchup{}).Name():                    &MyMatchup{},
-	(&MatchupIs{}).Name():                    &MatchupIs{},
-	(&MyMatchupIs{}).Name():                  &MyMatchupIs{},
-	(&Is1v1{}).Name():                        &Is1v1{},
-	(&Is2v2{}).Name():                        &Is2v2{},
-	// TODO MyBOIs9Pool
-	// TODO MyBOIs12Pool
-	// TODO MyBOIsOverpool
-	// TODO MyBOIs12Hatch
-	// TODO MyBOIs3HatchBeforePool
-	// TODO MyBOIs2HatchBeforePool
-	// TODO MyBOIs1-1-1
-	// TODO MyBOIs2HatchSpire
-	// TODO IsTopVsBottomOrOneOnOneOrMelee
 }
 
 // Context is all context necessary for analyzers to properly analyze a replay
