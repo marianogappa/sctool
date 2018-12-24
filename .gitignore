@@ -12,5 +12,6 @@
 *.out
 
 *.rep
-raszagal
 extract.json
+
+dist
