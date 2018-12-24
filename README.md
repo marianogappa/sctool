@@ -1,4 +1,5 @@
-# sctool [![Build Status](https://img.shields.io/travis/marianogappa/sctool.svg)](https://travis-ci.org/marianogappa/sctool) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/marianogappa/sctool/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/marianogappa/sctool?style=flat-square)](https://goreportcard.com/report/github.com/marianogappa/sctool)
+# sctool [![Build Status](https://img.shields.io/travis/marianogappa/sctool.svg)](https://travis-ci.org/marianogappa/sctool) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/marianogappa/sctool/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/marianogappa/sctool?style=flat-square)](https://goreportcard.com/report/github.com/marianogappa/sctool) [![GoDoc](https://godoc.org/github.com/marianogappa/sctool/analyzer?status.svg)](https://godoc.org/github.com/marianogappa/sctool/analyzer)
+
 
 sctool is a Starcraft: Remastered replay analyzer library and CLI tool built with 4 main use cases:
 
