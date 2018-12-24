@@ -67,6 +67,12 @@ type Analyzer interface {
 
 	// Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 	Clone() Analyzer
+
+	// RequiresParsingCommandss is true if this Analyzer requires parsing commands from the replay
+	RequiresParsingCommands() bool
+
+	// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+	RequiresParsingMapData() bool
 }
 
 // Analyzers are all implemented replay analyzers. Must not be modified!

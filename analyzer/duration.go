@@ -37,6 +37,12 @@ func (a DurationMinutes) IsDone() (string, bool) { return a.result, a.done }
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a DurationMinutes) Version() int { return 1 }
 
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a DurationMinutes) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a DurationMinutes) RequiresParsingMapData() bool { return false }
+
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a DurationMinutes) Clone() Analyzer { return &DurationMinutes{a.done, a.result} }
 
@@ -102,6 +108,12 @@ func (a DurationMinutesIsGreaterThan) IsDone() (string, bool) { return a.result,
 // analyzer, the Version should be numerically higher. Then, if there's a cached
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a DurationMinutesIsGreaterThan) Version() int { return 1 }
+
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a DurationMinutesIsGreaterThan) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a DurationMinutesIsGreaterThan) RequiresParsingMapData() bool { return false }
 
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a DurationMinutesIsGreaterThan) Clone() Analyzer {
@@ -183,6 +195,12 @@ func (a DurationMinutesIsLowerThan) IsDone() (string, bool) { return a.result, a
 // analyzer, the Version should be numerically higher. Then, if there's a cached
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a DurationMinutesIsLowerThan) Version() int { return 1 }
+
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a DurationMinutesIsLowerThan) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a DurationMinutesIsLowerThan) RequiresParsingMapData() bool { return false }
 
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a DurationMinutesIsLowerThan) Clone() Analyzer {

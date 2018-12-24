@@ -40,6 +40,12 @@ func (a Matchup) IsDone() (string, bool) { return a.result, a.done }
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a Matchup) Version() int { return 1 }
 
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a Matchup) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a Matchup) RequiresParsingMapData() bool { return false }
+
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a Matchup) Clone() Analyzer { return &Matchup{a.done, a.result} }
 
@@ -117,6 +123,12 @@ func (a MyMatchup) IsDone() (string, bool) { return a.result, a.done }
 // analyzer, the Version should be numerically higher. Then, if there's a cached
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a MyMatchup) Version() int { return 1 }
+
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a MyMatchup) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a MyMatchup) RequiresParsingMapData() bool { return false }
 
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a MyMatchup) Clone() Analyzer { return &MyMatchup{a.done, a.result} }
@@ -199,6 +211,12 @@ func (a MatchupIs) IsDone() (string, bool) { return a.result, a.done }
 // analyzer, the Version should be numerically higher. Then, if there's a cached
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a MatchupIs) Version() int { return 1 }
+
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a MatchupIs) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a MatchupIs) RequiresParsingMapData() bool { return false }
 
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a MatchupIs) Clone() Analyzer { return &MatchupIs{a.done, a.result, cloneStringSlice(a.races)} }
@@ -285,6 +303,12 @@ func (a MyMatchupIs) IsDone() (string, bool) { return a.result, a.done }
 // analyzer, the Version should be numerically higher. Then, if there's a cached
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a MyMatchupIs) Version() int { return 1 }
+
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a MyMatchupIs) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a MyMatchupIs) RequiresParsingMapData() bool { return false }
 
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a MyMatchupIs) Clone() Analyzer {

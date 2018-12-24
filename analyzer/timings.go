@@ -40,6 +40,12 @@ func (a MyFirstSpecificUnitSeconds) IsDone() (string, bool) { return a.result, a
 // Result of an Analyzer on a Replay, the result should be recomputed.
 func (a MyFirstSpecificUnitSeconds) Version() int { return 1 }
 
+// RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
+func (a MyFirstSpecificUnitSeconds) RequiresParsingCommands() bool { return false }
+
+// RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
+func (a MyFirstSpecificUnitSeconds) RequiresParsingMapData() bool { return false }
+
 // Clone is a convenience method just so there can be a map[string]analyzer.Analyzer in createSortedAnalyzerWrappers
 func (a MyFirstSpecificUnitSeconds) Clone() Analyzer {
 	return &MyFirstSpecificUnitSeconds{a.done, a.result, a.playerID, a.unitID}
