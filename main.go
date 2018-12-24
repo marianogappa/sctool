@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/marianogappa/raszagal/analyzer"
+	"github.com/marianogappa/sctool/analyzer"
 )
 
 func main() {
