@@ -41,7 +41,7 @@ func (a MyFirstSpecificUnitSeconds) IsDone() (string, bool) { return a.result, a
 func (a MyFirstSpecificUnitSeconds) Version() int { return 1 }
 
 // RequiresParsingCommands is true if this Analyzer requires parsing commands from the replay
-func (a MyFirstSpecificUnitSeconds) RequiresParsingCommands() bool { return false }
+func (a MyFirstSpecificUnitSeconds) RequiresParsingCommands() bool { return true }
 
 // RequiresParsingMapData is true if this Analyzer requires parsing map data from the replay
 func (a MyFirstSpecificUnitSeconds) RequiresParsingMapData() bool { return false }

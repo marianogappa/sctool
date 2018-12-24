@@ -558,6 +558,7 @@ func (a *ReplayName) ProcessCommand(command repcmd.Cmd) (bool, error) { return t
 // It may error, signaling that this Analyzer should no longer be used, and an error
 // should be shown to the client, but execution of the rest may continue.
 func (a *ReplayName) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string) (bool, error) {
+	a.done = true
 	a.result = path.Base(replayPath)
 	a.result = a.result[:len(a.result)-4]
 	return a.done, nil

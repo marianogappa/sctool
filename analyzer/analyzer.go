@@ -129,6 +129,8 @@ type Executor struct {
 	output                     Output
 	copyPath                   string
 	shouldCopyToOutputLocation bool
+	requiresParsingCommands    bool
+	requiresParsingMapData     bool
 }
 
 // NewExecutor should be the entrypoint of this library to the client. It creates an Executor.
@@ -141,6 +143,7 @@ func NewExecutor(replayPaths []string, analyzerRequests [][]string, ctx Context,
 	)
 	ae.replayPaths, rpErrs = ae.filterReplayPaths(replayPaths)
 	ae.analyzerWrappers, aeErrs = ae.createSortedAnalyzerWrappers(analyzerRequests)
+	ae.requiresParsingCommands, ae.requiresParsingMapData = ae.determineRequiredParsingSections()
 	ae.ctx = ctx
 	ae.output = output
 	if ae.output == nil {
@@ -250,7 +253,11 @@ func (e Executor) executeReplay(r *rep.Replay, replayPath string, analyzerWrappe
 	}
 
 	// Analyze Commands. N.B. This is the expensive loop in the algorithm; optimize here!
-	for _, c := range r.Commands.Cmds {
+	commands := []repcmd.Cmd{}
+	if e.requiresParsingCommands {
+		commands = r.Commands.Cmds
+	}
+	for _, c := range commands {
 		if len(analyzerWrappers) == removedCount {
 			break // Optimization: don't loop over commands if there's nothing to do!
 		}
@@ -280,7 +287,7 @@ func (e Executor) executeReplay(r *rep.Replay, replayPath string, analyzerWrappe
 }
 
 func (e Executor) parseReplayFile(replayPath string) (*rep.Replay, error) {
-	r, err := repparser.ParseFile(replayPath)
+	r, err := repparser.ParseFileSections(replayPath, e.requiresParsingCommands, e.requiresParsingMapData)
 	if err != nil {
 		return nil, fmt.Errorf("screp failed to parse replay %v: %v", replayPath, err)
 	}
@@ -355,6 +362,14 @@ func (e Executor) createSortedAnalyzerWrappers(analyzerRequests [][]string) ([]a
 		analyzerWrappers[i].pos = i
 	}
 	return analyzerWrappers, errs
+}
+
+func (e Executor) determineRequiredParsingSections() (requiresParsingCommands, requiresParsingMapData bool) {
+	for _, aw := range e.analyzerWrappers {
+		requiresParsingCommands = requiresParsingCommands || aw.analyzer.RequiresParsingCommands()
+		requiresParsingMapData = requiresParsingMapData || aw.analyzer.RequiresParsingMapData()
+	}
+	return
 }
 
 func (e Executor) filterReplayPaths(replayPaths []string) (paths []string, errs []error) {
