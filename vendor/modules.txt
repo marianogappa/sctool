@@ -1,0 +1,6 @@
+# github.com/icza/screp v1.1.0
+github.com/icza/screp/rep
+github.com/icza/screp/rep/repcmd
+github.com/icza/screp/repparser
+github.com/icza/screp/rep/repcore
+github.com/icza/screp/repparser/repdecoder
