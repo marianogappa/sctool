@@ -207,30 +207,31 @@ func (a *argumentValidatorUnit) ValidateAndSet(args []string) ([]string, error) 
 }
 
 type analyzerProcessor interface {
-	ProcessCommand(command repcmd.Cmd, args []string, result string) (string, bool, error)
 	StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error)
+	ProcessCommand(command repcmd.Cmd, args []string, result string) (string, bool, error)
 	Clone() analyzerProcessor
 }
 
 type analyzerProcessorImpl struct {
 	result             string
 	done               bool
-	startReadingReplay func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error)
-	processCommand     func(command repcmd.Cmd, args []string, result string) (string, bool, error)
+	state              interface{}
+	startReadingReplay func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error)
+	processCommand     func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error)
 }
 
 func (a *analyzerProcessorImpl) Clone() analyzerProcessor {
-	return &analyzerProcessorImpl{"", false, a.startReadingReplay, a.processCommand}
+	return &analyzerProcessorImpl{"", false, nil, a.startReadingReplay, a.processCommand}
 }
 
 func (a *analyzerProcessorImpl) StartReadingReplay(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
 	var err error
-	a.result, a.done, err = a.startReadingReplay(replay, ctx, replayPath, args)
+	a.result, a.done, a.state, err = a.startReadingReplay(replay, ctx, replayPath, args)
 	return a.result, a.done, err
 }
 
 func (a *analyzerProcessorImpl) ProcessCommand(command repcmd.Cmd, args []string, result string) (string, bool, error) {
 	var err error
-	a.result, a.done, err = a.processCommand(command, args, result)
+	a.result, a.done, err = a.processCommand(command, args, result, a.state)
 	return a.result, a.done, err
 }

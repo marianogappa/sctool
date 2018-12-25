@@ -27,15 +27,15 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				for _, p := range replay.Header.OrigPlayers {
 					if p.Race.Name == args[0] {
-						return "true", true, nil
+						return "true", true, nil, nil
 					}
 				}
-				return "false", true, nil
+				return "false", true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -53,22 +53,22 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "-1",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if replay.Computed == nil {
-					return "-1", true, nil
+					return "-1", true, nil, nil
 				}
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "-1", true, fmt.Errorf("-me player not present in this replay")
+					return "-1", true, nil, fmt.Errorf("-me player not present in this replay")
 				}
 				for _, pDesc := range replay.Computed.PlayerDescs {
 					if pDesc.PlayerID == playerID {
-						return fmt.Sprintf("%v", pDesc.APM), true, nil
+						return fmt.Sprintf("%v", pDesc.APM), true, nil, nil
 					}
 				}
-				return "-1", true, fmt.Errorf("unexpected error")
+				return "-1", true, nil, fmt.Errorf("unexpected error")
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -86,14 +86,14 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "", true, fmt.Errorf("-me player not present in this replay")
+					return "", true, nil, fmt.Errorf("-me player not present in this replay")
 				}
-				return replay.Header.PIDPlayers[playerID].Race.Name, true, nil
+				return replay.Header.PIDPlayers[playerID].Race.Name, true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -111,18 +111,18 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "", true, fmt.Errorf("-me player not present in this replay")
+					return "", true, nil, fmt.Errorf("-me player not present in this replay")
 				}
 				result := "false"
 				if replay.Header.PIDPlayers[playerID].Race.Name == args[0] {
 					result = "true"
 				}
-				return result, true, nil
+				return result, true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -140,10 +140,10 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
-				return fmt.Sprintf("%v", replay.Header.StartTime), true, nil
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
+				return fmt.Sprintf("%v", replay.Header.StartTime), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -161,14 +161,14 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "", true, fmt.Errorf("-me player not present in this replay")
+					return "", true, nil, fmt.Errorf("-me player not present in this replay")
 				}
-				return replay.Header.PIDPlayers[playerID].Name, true, nil
+				return replay.Header.PIDPlayers[playerID].Name, true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -186,11 +186,11 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				result := path.Base(replayPath)
-				return result[:len(result)-4], true, nil
+				return result[:len(result)-4], true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -208,10 +208,10 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
-				return replayPath, true, nil
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
+				return replayPath, true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -229,20 +229,20 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if replay.Computed == nil || replay.Computed.WinnerTeam == 0 {
-					return "unknown", true, nil
+					return "unknown", true, nil, nil
 				}
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "", true, fmt.Errorf("-me player not present in this replay")
+					return "", true, nil, fmt.Errorf("-me player not present in this replay")
 				}
 				if replay.Header.PIDPlayers[playerID].Team == replay.Computed.WinnerTeam {
-					return "true", true, nil
+					return "true", true, nil, nil
 				}
-				return "false", true, nil
+				return "false", true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -260,13 +260,13 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if playerID := findPlayerID(replay, ctx.Me); playerID == 127 {
-					return "false", true, nil
+					return "false", true, nil, nil
 				}
-				return "true", true, nil
+				return "true", true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -284,10 +284,10 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
-				return replay.Header.Map, true, nil
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
+				return replay.Header.Map, true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -305,13 +305,13 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if len(replay.Header.Players) == 2 && replay.Header.Players[0].Team != replay.Header.Players[1].Team {
-					return "true", true, nil
+					return "true", true, nil, nil
 				}
-				return "false", true, nil
+				return "false", true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -329,15 +329,15 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if len(replay.Header.Players) == 4 && replay.Header.Players[0].Team == replay.Header.Players[1].Team &&
 					replay.Header.Players[1].Team != replay.Header.Players[2].Team &&
 					replay.Header.Players[2].Team == replay.Header.Players[3].Team {
-					return "true", true, nil
+					return "true", true, nil, nil
 				}
-				return "false", true, nil
+				return "false", true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -355,10 +355,10 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
-				return fmt.Sprintf("%v", int(replay.Header.Duration().Minutes())), true, nil
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
+				return fmt.Sprintf("%v", int(replay.Header.Duration().Minutes())), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -376,12 +376,12 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				actualMinutes := int(replay.Header.Duration().Minutes())
 				expectedMinutes, _ := strconv.Atoi(args[0]) // N.B. Validator already checked it's ok
-				return fmt.Sprintf("%v", actualMinutes > expectedMinutes), true, nil
+				return fmt.Sprintf("%v", actualMinutes > expectedMinutes), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -399,12 +399,12 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				actualMinutes := int(replay.Header.Duration().Minutes())
 				expectedMinutes, _ := strconv.Atoi(args[0]) // N.B. Validator already checked it's ok
-				return fmt.Sprintf("%v", actualMinutes < expectedMinutes), true, nil
+				return fmt.Sprintf("%v", actualMinutes < expectedMinutes), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -422,18 +422,18 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if len(replay.Header.Players) == 2 {
 					r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
 					r1 := strings.ToUpper(string(replay.Header.Players[1].Race.Letter))
 					if r0 > r1 {
-						return r1 + "v" + r0, true, nil
+						return r1 + "v" + r0, true, nil, nil
 					}
-					return r0 + "v" + r1, true, nil
+					return r0 + "v" + r1, true, nil, nil
 				}
-				return replay.Header.Matchup(), true, nil
+				return replay.Header.Matchup(), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -451,22 +451,22 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 {
-					return "", true, nil
+					return "", true, nil, nil
 				}
 				if len(replay.Header.Players) == 2 {
 					r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
 					r1 := strings.ToUpper(string(replay.Header.Players[1].Race.Letter))
 					if playerID == 1 {
-						return r1 + "v" + r0, true, nil
+						return r1 + "v" + r0, true, nil, nil
 					}
-					return r0 + "v" + r1, true, nil
+					return r0 + "v" + r1, true, nil, nil
 				}
-				return replay.Header.Matchup(), true, nil // TODO put -me player on the left side
+				return replay.Header.Matchup(), true, nil, nil // TODO put -me player on the left side
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -484,18 +484,18 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "false",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				if len(replay.Header.Players) != 2 {
-					return "", true, nil
+					return "", true, nil, nil
 				}
 				actualRaces := []string{
 					strings.ToUpper(string(replay.Header.Players[0].Race.Letter)),
 					strings.ToUpper(string(replay.Header.Players[1].Race.Letter)),
 				}
 				sort.Strings(actualRaces)
-				return fmt.Sprintf("%v", reflect.DeepEqual(args, actualRaces)), true, nil
+				return fmt.Sprintf("%v", reflect.DeepEqual(args, actualRaces)), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
@@ -513,47 +513,48 @@ var Analyzers = map[string]Analyzer{
 		&analyzerProcessorImpl{
 			result: "false",
 			done:   false,
-			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
 				playerID := findPlayerID(replay, ctx.Me)
 				if playerID == 127 || len(replay.Header.Players) != 2 {
-					return "", true, nil
+					return "", true, nil, nil
 				}
 				actualRaces := []string{
 					strings.ToUpper(string(replay.Header.Players[0].Race.Letter)),
 					strings.ToUpper(string(replay.Header.Players[1].Race.Letter)),
 				}
 				sort.Strings(actualRaces)
-				return fmt.Sprintf("%v", reflect.DeepEqual(args, actualRaces)), true, nil
+				return fmt.Sprintf("%v", reflect.DeepEqual(args, actualRaces)), true, nil, nil
 			},
-			processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
 			},
 		},
 	),
-	// "my-first-specific-unit-seconds": newAnalyzerImpl(
-	// 	"my-first-specific-unit-seconds",
-	// 	"Analyzes the time the first specified unit/building/evolution was built, in seconds. Refer to the unit name list in utils.go#nameToUnitID. -1 if the unit never appears.",
-	// 	1, // version
-	// 	map[string]struct{}{}, // dependsOn
-	// 	true,  // isStringFlag
-	// 	false, // isBooleanResult
-	// 	true,  // requiresParsingCommands
-	// 	false, // requiresParsingMapData
-	// 	&argumentValidatorUnit{},
-	// 	&analyzerProcessorImpl{
-	// 		result: "-1",
-	// 		done:   false,
-	// 		startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, error) {
-	// 			playerID := findPlayerID(replay, ctx.Me)
-	// 			return "-1", playerID == 127, nil
-	// 		},
-	// 		processCommand: func(command repcmd.Cmd, args []string, result string) (string, bool, error) {
-	// 			_unitID, _ := strconv.ParseUint(args[0], 10, 16) // N.B. Validator already checked it's ok
-	// 			unitID := uint16(_unitID)
-	// 			// TODO Must resolve state issue here
-	// 			result, done := maybePlayersUnitSeconds(command, findPlayerID(replay, ctx.Me), unitID)
-	// 			return result, done, nil
-	// 		},
-	// 	},
-	// ),
+	"my-first-specific-unit-seconds": newAnalyzerImpl(
+		"my-first-specific-unit-seconds",
+		"Analyzes the time the first specified unit/building/evolution was built, in seconds. Refer to the unit name list in utils.go#nameToUnitID. -1 if the unit never appears.",
+		1, // version
+		map[string]struct{}{}, // dependsOn
+		true,  // isStringFlag
+		false, // isBooleanResult
+		true,  // requiresParsingCommands
+		false, // requiresParsingMapData
+		&argumentValidatorUnit{},
+		&analyzerProcessorImpl{
+			result: "-1",
+			done:   false,
+			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
+				unitID, _ := strconv.Atoi(args[0]) // N.B. Validator already checked it's ok
+				playerID := findPlayerID(replay, ctx.Me)
+				state := []int{unitID, int(playerID)}
+				return "-1", playerID == 127, state, nil
+			},
+			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
+				_state := state.([]int)
+				unitID, playerID := _state[0], _state[1]
+				result, done := maybePlayersUnitSeconds(command, byte(playerID), uint16(unitID))
+				return result, done, nil
+			},
+		},
+	),
 }
