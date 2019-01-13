@@ -96,6 +96,9 @@ func main() {
 }
 
 func resolveReplayPaths(fReplay, fReplays, fReplayDir string) []string {
+	if fReplay == "" && fReplays == "" && fReplayDir == "" {
+		fReplayDir = "." // default to find replays recursively in the current directory
+	}
 	var replays = map[string]struct{}{}
 	fReplay = strings.TrimSpace(fReplay)
 	if len(fReplay) >= 5 && (fReplay)[len(fReplay)-4:] == ".rep" {
