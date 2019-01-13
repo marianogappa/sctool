@@ -150,7 +150,7 @@ func (e *Executor) Execute() []error {
 // Usually, when using this method, the Executor's output should be NoOutput, since the results are
 // available in the return value of this method.
 func (e *Executor) ExecuteWithResults() ([][]string, []error) {
-	results, errs := e.execute(false)
+	results, errs := e.execute(true)
 	return results, errs
 }
 
