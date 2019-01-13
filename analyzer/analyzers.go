@@ -127,9 +127,9 @@ var Analyzers = map[string]Analyzer{
 			},
 		},
 	),
-	"date-time": newAnalyzerImpl(
-		"date-time",
-		"Analyzes the datetime of the replay.",
+	"date": newAnalyzerImpl(
+		"date",
+		"Analyzes the date of the replay. Uses yyyy-mm-dd pattern because it's lexicographically sorted.",
 		1, // version
 		map[string]struct{}{}, // dependsOn
 		false, // isStringFlag
@@ -141,7 +141,7 @@ var Analyzers = map[string]Analyzer{
 			result: "",
 			done:   false,
 			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
-				return fmt.Sprintf("%v", replay.Header.StartTime), true, nil, nil
+				return replay.Header.StartTime.Format("2006-01-02"), true, nil, nil
 			},
 			processCommand: func(command repcmd.Cmd, args []string, result string, state interface{}) (string, bool, error) {
 				return result, true, nil
