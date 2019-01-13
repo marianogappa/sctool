@@ -253,7 +253,7 @@ var Analyzers = map[string]Analyzer{
 		1, // version
 		map[string]struct{}{}, // dependsOn
 		false, // isStringFlag
-		false, // isBooleanResult
+		true,  // isBooleanResult
 		false, // requiresParsingCommands
 		false, // requiresParsingMapData
 		&argumentValidatorNoArguments{},
