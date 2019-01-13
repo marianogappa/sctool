@@ -47,7 +47,7 @@ var Analyzers = map[string]Analyzer{
 		map[string]struct{}{}, // dependsOn
 		false, // isStringFlag
 		false, // isBooleanResult
-		false, // requiresParsingCommands
+		true,  // requiresParsingCommands
 		false, // requiresParsingMapData
 		&argumentValidatorNoArguments{},
 		&analyzerProcessorImpl{
