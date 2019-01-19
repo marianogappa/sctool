@@ -461,9 +461,11 @@ var Analyzers = map[string]Analyzer{
 					return "", true, nil, nil
 				}
 				if len(replay.Header.Players) == 2 {
+					// N.B. Note that replay.Header.Players is in team order, but team order is irrelevant except on
+					// TvB. Main insight: Players[0].ID is not necessarily == 0.
 					r0 := strings.ToUpper(string(replay.Header.Players[0].Race.Letter))
 					r1 := strings.ToUpper(string(replay.Header.Players[1].Race.Letter))
-					if playerID == 1 {
+					if playerID == replay.Header.Players[1].ID {
 						return r1 + "v" + r0, true, nil, nil
 					}
 					return r0 + "v" + r1, true, nil, nil

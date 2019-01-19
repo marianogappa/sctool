@@ -9,14 +9,13 @@ import (
 	"github.com/icza/screp/rep/repcmd"
 )
 
-func findPlayerID(replay *rep.Replay, names map[string]struct{}) (playerID byte) {
-	playerID = 127 // On a byte field and for a player id, this will be a poor man's None
-	for id, p := range replay.Header.PIDPlayers {
+func findPlayerID(replay *rep.Replay, names map[string]struct{}) byte {
+	for _, p := range replay.Header.PIDPlayers {
 		if _, ok := names[p.Name]; ok {
-			playerID = id
+			return p.ID
 		}
 	}
-	return
+	return 127 // On a byte field and for a player id, this will be a poor man's None
 }
 
 // If the command is a specific building/unit creation/evolution of a specific player id, it returns the second

@@ -20,14 +20,14 @@ func TestAnalyzers(t *testing.T) {
 				"-map-name",
 				"-matchup",
 				"-my-game",
-				"-my-matchup", // TODO: this should be ZvP; review!
+				"-my-matchup",
 				"-my-name",
 				"-my-race",
 				"-my-race-is", "zerg",
 				"-me", "adultrabbit",
 				"-replay", "testdata/larvavsMini.rep", "-o", "none",
 			},
-			expected: [][]string{{"true", "false", "true", "Transistor1.2", "PvZ", "true", "PvZ", "adultrabbit", "Zerg", "true"}},
+			expected: [][]string{{"true", "false", "true", "Transistor1.2", "PvZ", "true", "ZvP", "adultrabbit", "Zerg", "true"}},
 		},
 	}
 	for _, tc := range ts {
