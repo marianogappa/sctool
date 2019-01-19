@@ -306,7 +306,11 @@ var Analyzers = map[string]Analyzer{
 			result: "",
 			done:   false,
 			startReadingReplay: func(replay *rep.Replay, ctx Context, replayPath string, args []string) (string, bool, interface{}, error) {
-				if len(replay.Header.Players) == 2 && replay.Header.Players[0].Team != replay.Header.Players[1].Team {
+				// TODO: when GameType is Melee every "real" player is in Team 0. This breaks Matchup in screp. Make PR!
+				if len(replay.Header.Players) == 2 && (replay.Header.Players[0].Team != replay.Header.Players[1].Team ||
+					replay.Header.Type.Name == "Melee" ||
+					replay.Header.Type.Name == "One on One" ||
+					replay.Header.Type.Name == "Free For All") {
 					return "true", true, nil, nil
 				}
 				return "false", true, nil, nil

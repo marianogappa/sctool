@@ -14,7 +14,7 @@ func TestAnalyzers(t *testing.T) {
 		{
 			name: "tests -map-name",
 			args: []string{
-				"-is-1v1", // TODO: this should be true; review!
+				"-is-1v1",
 				"-is-2v2",
 				"-is-there-a-race", "protoss",
 				"-map-name",
@@ -27,7 +27,7 @@ func TestAnalyzers(t *testing.T) {
 				"-me", "adultrabbit",
 				"-replay", "testdata/larvavsMini.rep", "-o", "none",
 			},
-			expected: [][]string{{"false", "false", "true", "Transistor1.2", "PvZ", "true", "PvZ", "adultrabbit", "Zerg", "true"}},
+			expected: [][]string{{"true", "false", "true", "Transistor1.2", "PvZ", "true", "PvZ", "adultrabbit", "Zerg", "true"}},
 		},
 	}
 	for _, tc := range ts {
